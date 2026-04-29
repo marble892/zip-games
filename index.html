@@ -103,25 +103,40 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         /* visually-grouped icon buttons that always stay together */
         .icon-cluster {
             display: inline-flex;
-            align-items: center;
+            align-items: stretch;
             background: var(--bg-elev-2);
             border: 1px solid var(--border);
             border-radius: 10px;
-            padding: 2px;
+            padding: 0;
             gap: 0;
             flex: 0 0 auto;
+            box-sizing: border-box;
+            height: 34px;
+            overflow: hidden;
         }
         .icon-cluster > button.icon-btn,
         .icon-cluster .badge-wrap > button.icon-btn {
             background: transparent;
             border: none;
-            border-radius: 7px;
-            padding: 5px 9px;
+            border-radius: 0;
+            padding: 0 10px;
+            height: 100%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+        .icon-cluster > * + *,
+        .icon-cluster > .badge-wrap + .badge-wrap,
+        .icon-cluster > button + .badge-wrap,
+        .icon-cluster > .badge-wrap + button {
+            border-left: 1px solid var(--border);
         }
         .icon-cluster > button.icon-btn:hover,
         .icon-cluster .badge-wrap > button.icon-btn:hover {
             background: var(--border);
         }
+        .icon-cluster .badge-wrap { display: inline-flex; }
 
         /* badge-wrap keeps button + badge as one flex item that can never split */
         .badge-wrap {
@@ -176,7 +191,12 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             padding: 6px 12px;
             cursor: pointer;
             transition: background .15s ease, border-color .15s ease, transform .05s ease;
+            box-sizing: border-box;
         }
+        .nav-right > select,
+        .nav-right > #wiper,
+        .nav-left  > select,
+        .nav-left  > button.icon-btn { height: 34px; }
         button:hover    { background: var(--border); }
         button:active   { transform: translateY(1px); }
         button.danger   { color: var(--danger); }
@@ -1820,23 +1840,56 @@ function wireDropZone() {
 
 /* allow dropping a new zip anywhere on the library to replace the pack */
 function wireGlobalDrop() {
-    let depth = 0;
     const isFileDrag = (e) => e.dataTransfer && Array.from(e.dataTransfer.types || []).includes("Files");
+
+    let active = false;
+    let lastOver = 0;
+    let watchdog = 0;
+
+    const setActive = (on) => {
+        if (active === on) return;
+        active = on;
+        document.body.classList.toggle("drag-over", on);
+    };
+
+    const stopWatchdog = () => {
+        if (watchdog) { clearInterval(watchdog); watchdog = 0; }
+    };
+    const startWatchdog = () => {
+        if (watchdog) return;
+        watchdog = setInterval(() => {
+            if (performance.now() - lastOver > 250) {
+                setActive(false);
+                stopWatchdog();
+            }
+        }, 120);
+    };
 
     window.addEventListener("dragenter", (e) => {
         if (state.gameOpen || !isFileDrag(e)) return;
-        depth++;
-        document.body.classList.add("drag-over");
+        lastOver = performance.now();
+        setActive(true);
+        startWatchdog();
     });
-    window.addEventListener("dragleave", () => {
-        if (--depth <= 0) { depth = 0; document.body.classList.remove("drag-over"); }
+    window.addEventListener("dragover", (e) => {
+        if (!isFileDrag(e)) return;
+        e.preventDefault();
+        if (state.gameOpen) return;
+        lastOver = performance.now();
+        setActive(true);
+        startWatchdog();
     });
-    window.addEventListener("dragover", (e) => { if (isFileDrag(e)) e.preventDefault(); });
+    window.addEventListener("dragleave", (e) => {
+        if (e.relatedTarget === null || (e.clientX === 0 && e.clientY === 0)) {
+            setActive(false);
+            stopWatchdog();
+        }
+    });
     window.addEventListener("drop", async (e) => {
         if (!isFileDrag(e)) return;
         e.preventDefault();
-        depth = 0;
-        document.body.classList.remove("drag-over");
+        setActive(false);
+        stopWatchdog();
         if (state.gameOpen) return;
         const file = e.dataTransfer.files?.[0];
         if (!file) return;
@@ -1844,6 +1897,17 @@ function wireGlobalDrop() {
             if (!confirm(`Add "${file.name}" as a new pack and switch to it?`)) return;
         }
         await loadZipFile(file);
+    });
+    // belt-and-suspenders: always clear when the window/tab loses focus
+    window.addEventListener("blur",          () => { setActive(false); stopWatchdog(); });
+    window.addEventListener("dragend",       () => { setActive(false); stopWatchdog(); });
+    document.addEventListener("mouseleave",  () => { setActive(false); stopWatchdog(); });
+    document.addEventListener("visibilitychange", () => {
+        if (document.hidden) { setActive(false); stopWatchdog(); }
+    });
+    // pressing Escape during a drag should also clear it
+    window.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && active) { setActive(false); stopWatchdog(); }
     });
 }
 
