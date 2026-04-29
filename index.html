@@ -4,68 +4,316 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>Zip Games</title>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha512-XMVd28F1oH/O71fzwBnV7HucLxVwtxf26XV8P4wPk26EDxuGZ91N8bsOttmnomcCD3CS5ZMRL50H0GgOHvegtg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+		<style>
+	        body {
+	            margin: 0px;
+	            display: flex;
+	            flex-direction: column;
+	            overflow-x: hidden;
+	            min-height: 100dvh;
+	            font-family: sans-serif;
+	            background: rgb(40,40,40);
+	        }
+		
+			div#games {
+				display: grid;
+				grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+			}
+
+			div.container {
+				border-radius: 30px;
+				display: flex;
+				flex-direction: column;
+				justify-content: flex-end;
+				aspect-ratio: 1;
+				padding: 20px;
+				cursor: pointer;
+				background-size: cover;       /* Fill the area */
+				background-position: center;  /* Center the image */
+				background-repeat: no-repeat; /* Prevent tiling */
+	            border-style: solid;
+	            margin: 10px;
+			}
+
+			div.container p {
+	            color: white;
+	            background: rgba(0,0,0,.5);
+	            border-radius: 15px;
+	            padding: 4px;
+	            margin: -3px;
+	            margin-left: 0px;
+	            margin-right: 0px;
+	            text-align: center;
+			}
+		
+	        html {
+	            margin-right: 0px;
+	        }
+		
+	        div#nav {
+	            flex-shrink: 0; padding: 20px 40px; 
+	            display: grid;
+	            grid-template-columns: 1fr auto 1fr; 
+	            align-items: center;
+	            background: rgb(30,30,30);
+	            color: white;
+	            border-bottom: 1px solid #222;
+	            z-index: 100;
+	        }
+		
+	        .nav-left {
+	            display: flex;
+	            justify-content: flex-start;
+	        }
+	        .nav-center {
+	            display: flex;
+	            justify-content: center;
+	        }
+	        .nav-right {
+	            display: flex;
+	            justify-content: flex-end;
+	            align-items: center;
+	            gap: 20px;
+	        }
+		
+	        iframe#frame {
+	            position: absolute;
+	            margin: 0px;
+	            border: none;
+	            width: 100%;
+	            height: 100%;
+	        }
+		
+	        .hidden {
+	            display: none;
+	        }
+		
+	        .shown {
+	            display: block;
+	        }
+		
+	        div#zipLoader {
+	            color: white;
+	            margin: 50px;
+	            display: grid;
+	            align-items: center;
+	            align-content: center;
+	            border-style: dashed;
+	            flex: 1;
+	            cursor: pointer;
+	        }
+		</style>
 	</head>
 	<body>
-		<div id="zipLoader" style="text-align: center;">
-			<h2 style="margin-bottom: 0px;">+ Drag and Drop Games.zip</h2>
-			<p style="margin-top: 0px;">(<a href="/">download</a> or <a href="/">use cdn</a>)</p>
+	    <iframe id="frame" class="hidden" srcdoc="<h1>Game should load n a second</h1>"></iframe>
+	    <div id="inGameMenuContainer">
+	    </div>
+	    <div id="everythingContainer">
+	        <div id="nav">
+	            <div class="nav-left">
+	                <p id="brand">Zipped Games</p>
+	            </div>
+	            <div class="nav-center"></div>
+	            <div class="nav-right">
+	                <button id="wiper" onclick="wipeDB();" style="display: none;">Wipe Games</button>
+	            </div>
+	        </div>
+		   <div id="games"></div>
+	    </div>
+		<div id="zipLoader" style="text-align:center; display: none;">
+			<h2 style="margin-bottom:0px;">+ Drag and Drop Games.zip</h2>
 		</div>
-		<div id="games"></div>
+
 		<script>
-			const dropZone = document.getElementById('zipLoader');
+			const DB_NAME = "zipGamesDB";
+			const STORE = "zips";
+			const KEY = "currentZip";
+			
 			let zip;
 			let packData;
-			let zipLoaded = false
-
-			async function loadZip(zipFile) {
-				console.log(`File Name: ${zipFile.name}`);
-				console.log(`File Size: ${zipFile.size} bytes`);
-
-				zip = await JSZip.loadAsync(zipFile);
-
-				zip.file("data.json").async("string").then(function(data) {
-					packData = JSON.parse(data)
-					console.log(packData);
-					zipLoaded = true
-
-					packData["games"].forEach(game => {
-						let gameCard = document.createElement("p")
-						gameCard.setAttribute("onclick", `openGame("${game["fileName"]}")`)
-						gameCard.setAttribute("title", game["description"])
-						gameCard.innerText = game["displayName"]
-						document.getElementById("games").appendChild(gameCard)
-					});
-				})
+			let zipLoaded = false;
+			let gameOpen = false;
+			let idToIndex = {}
+			
+			
+			/* ---------------- IndexedDB helpers ---------------- */
+			function openDB() {
+				return new Promise((res, rej) => {
+					const req = indexedDB.open(DB_NAME, 1);
+					req.onupgradeneeded = () => {
+						req.result.createObjectStore(STORE);
+					};
+					req.onsuccess = () => res(req.result);
+					req.onerror = () => rej(req.error);
+				});
 			}
-
-			function openGame(fileName) {
-				if (zipLoaded === "false") {return};
-				let newWin = window.open()
-				if (newWin) {
-					newWin.document.open()
-					zip.file(packData["fileBase"].replace("/", "") + fileName).async("string").then(function(data) {
-						newWin.document.write(data)
-					})
-					newWin.document.close()
+			
+			async function saveZip(buffer) {
+				const db = await openDB();
+				return new Promise((res, rej) => {
+					const tx = db.transaction(STORE, "readwrite");
+					tx.objectStore(STORE).put(buffer, KEY);
+					tx.oncomplete = () => res();
+					tx.onerror = () => rej(tx.error);
+				});
+			}
+			
+			async function loadZipFromDB() {
+				const db = await openDB();
+				return new Promise((res) => {
+					const tx = db.transaction(STORE, "readonly");
+					const req = tx.objectStore(STORE).get(KEY);
+					req.onsuccess = () => res(req.result);
+					req.onerror = () => res(null);
+				});
+			}
+			
+			function wipeDB() {
+				indexedDB.deleteDatabase("zipGamesDB");
+				location.reload();
+			}
+			
+			/* ---------------- Core loader ---------------- */
+			async function renderZip(arrayBuffer) {
+				zip = await JSZip.loadAsync(arrayBuffer)
+			
+				const data = await zip.file("data.json").async("string");
+				packData = JSON.parse(data);
+				zipLoaded = true;
+			
+				const gamesDiv = document.getElementById("games");
+				gamesDiv.innerHTML = "";
+			
+				for (const game of packData.games) {
+					const container = document.createElement("div");
+					container.className = "container"
+					container.title = game.description;
+					container.onclick = () => openGame(game.fileName);
+				
+					const p = document.createElement("p");
+					p.innerText = game.displayName;
+				
+					coverBlob(game.cover).then(url => {
+						container.style.backgroundImage = `url(${url})`;
+						container.onload = () => URL.revokeObjectURL(url);
+					});
+				
+					container.appendChild(p);
+					gamesDiv.appendChild(container);
 				}
 			}
-
-			// Mandatory: allow the drop by preventing default browser behavior
-			dropZone.addEventListener('dragover', (e) => {
-				e.preventDefault();
-				e.dataTransfer.dropEffect = 'copy'; // Optional: changes the mouse cursor
-			});
-
-			dropZone.addEventListener('drop', async (e) => {
-				e.preventDefault(); // Stop browser from opening the file
-
-				// Access the files via dataTransfer.files (returns a FileList)
-				const files = e.dataTransfer.files;
-
-				if (files.length > 0) {
-					const zipFile = files[0];
-					loadZip(zipFile)
+			
+			function openGame(fileName) {
+				if (!zipLoaded) return;
+			
+				const frame = document.getElementById("frame");
+				const div = document.getElementById("everythingContainer");
+			
+				const path = packData.fileBase + fileName;
+			
+				zip.file(path).async("string").then(data => {
+					frame.srcdoc = data;
+			        frame.className = "shown"
+			        div.className = "hidden"
+				});
+			
+			    gameOpen = true
+			
+			    frame.addEventListener("load", function() {
+			        const frameDoc = frame.contentDocument;
+			        frameDoc.body.addEventListener("keydown", function(e) {
+			            if ((event.altKey && event.key === "m") && gameOpen === true) {
+			                console.log(gameOpen);
+			                closeGame();
+			                console.log(gameOpen);
+			            }
+			        })
+			    })
+			}
+			
+			document.addEventListener("keydown", function(e) {
+			    if ((event.altKey && event.key === "m") && gameOpen === true) {
+			        console.log(gameOpen);
+			        closeGame();
+			        console.log(gameOpen);
+			    }
+			})
+			
+			function closeGame() {
+				const frame = document.getElementById("frame");
+				const div = document.getElementById("everythingContainer");
+			    frame.srcdoc = "<h1>Game should load in a second...</h1>"
+			    frame.className = "hidden";
+			    div.className = "shown";
+			
+			    gameOpen = false;
+			}
+			
+			function openGameNewTab(fileName) {
+				if (!zipLoaded) return;
+			
+				const win = window.open();
+			    if (!win) return;
+			
+				const path = packData.fileBase + fileName;
+			
+				zip.file(path).async("string").then(data => {
+					win.document.write(data);
+			        win.document.close;
+				});
+			}
+			
+			async function coverBlob(fileName) {
+				if (!zipLoaded) return "";
+			
+				const path = packData.coverBase + fileName;
+				const file = zip.file(path);
+				if (!file) return "";
+			
+				const blob = await file.async("blob")
+				return URL.createObjectURL(blob);
+			}
+			
+			
+			/* ---------------- Drop handling ---------------- */
+			async function loadZipFile(file) {
+				const buffer = await file.arrayBuffer();
+				await saveZip(buffer);
+				location.reload();
+			}
+			
+			/* ---------------- Init ---------------- */
+			window.addEventListener("load", async () => {
+				const saved = await loadZipFromDB();
+				const dropZone = document.getElementById("zipLoader");
+			
+				if (saved) {
+					await renderZip(saved);
+			        document.getElementById("wiper").style.display = "block"
+				} else {
+					dropZone.style.display = "block"
+					dropZone.addEventListener("dragover", e => {
+						e.preventDefault();
+						e.dataTransfer.dropEffect = "copy";
+					});
+				
+					dropZone.addEventListener("drop", async e => {
+						e.preventDefault();
+						const file = e.dataTransfer.files[0];
+						if (file) await loadZipFile(file);
+					});
+				
+			        dropZone.addEventListener("click", async function() {
+			            const [handle] = await window.showOpenFilePicker({
+			                types: [{
+			                    description: 'Game Asset Pack (.zip)',
+			                    accept: { 'application/zip': ['.zip'] }
+			                }]
+			            });
+			            const file = await handle.getFile();
+			            if (file) await loadZipFile(file);
+			        })
 				}
 			});
 		</script>
