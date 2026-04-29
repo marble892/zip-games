@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Zip Games</title>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha512-XMVd28F1oH/O71fzwBnV7HucLxVwtxf26XV8P4wPk26EDxuGZ91N8bsOttmnomcCD3CS5ZMRL50H0GgOHvegtg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	</head>
+	<body>
+		<div id="zipLoader" style="text-align: center;">
+			<h2 style="margin-bottom: 0px;">+ Drag and Drop Games.zip</h2>
+			<p style="margin-top: 0px;">(<a href="/">download</a> or <a href="/">use cdn</a>)</p>
+		</div>
+		<div id="games"></div>
+		<script>
+			const dropZone = document.getElementById('zipLoader');
+			let zip;
+			let packData;
+			let zipLoaded = false
+
+			async function loadZip(zipFile) {
+				console.log(`File Name: ${zipFile.name}`);
+				console.log(`File Size: ${zipFile.size} bytes`);
+
+				zip = await JSZip.loadAsync(zipFile);
+
+				zip.file("data.json").async("string").then(function(data) {
+					packData = JSON.parse(data)
+					console.log(packData);
+					zipLoaded = true
+
+					packData["games"].forEach(game => {
+						let gameCard = document.createElement("p")
+						gameCard.setAttribute("onclick", `openGame("${game["fileName"]}")`)
+						gameCard.setAttribute("title", game["description"])
+						gameCard.innerText = game["displayName"]
+						document.getElementById("games").appendChild(gameCard)
+					});
+				})
+			}
+
+			function openGame(fileName) {
+				if (zipLoaded === "false") {return};
+				let newWin = window.open()
+				if (newWin) {
+					newWin.document.open()
+					zip.file(packData["fileBase"].replace("/", "") + fileName).async("string").then(function(data) {
+						newWin.document.write(data)
+					})
+					newWin.document.close()
+				}
+			}
+
+			// Mandatory: allow the drop by preventing default browser behavior
+			dropZone.addEventListener('dragover', (e) => {
+				e.preventDefault();
+				e.dataTransfer.dropEffect = 'copy'; // Optional: changes the mouse cursor
+			});
+
+			dropZone.addEventListener('drop', async (e) => {
+				e.preventDefault(); // Stop browser from opening the file
+
+				// Access the files via dataTransfer.files (returns a FileList)
+				const files = e.dataTransfer.files;
+
+				if (files.length > 0) {
+					const zipFile = files[0];
+					loadZip(zipFile)
+				}
+			});
+		</script>
+	</body>
+</html>
