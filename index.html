@@ -85,7 +85,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         /* ---------- nav ---------- */
         #nav {
             flex-shrink: 0;
-            padding: 10px 16px;
+            padding: 8px 14px;
             display: grid;
             grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr);
             gap: 10px;
@@ -96,9 +96,58 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             position: sticky;
             top: 0;
         }
-        .nav-left   { display: flex; justify-content: flex-start; align-items: center; gap: 10px; min-width: 0; }
+        .nav-left   { display: flex; justify-content: flex-start; align-items: center; gap: 8px; min-width: 0; }
         .nav-center { display: flex; justify-content: center; min-width: 0; }
-        .nav-right  { display: flex; justify-content: flex-end; align-items: center; gap: 6px; flex-wrap: wrap; min-width: 0; }
+        .nav-right  { display: flex; justify-content: flex-end; align-items: center; gap: 6px; flex-wrap: nowrap; min-width: 0; }
+
+        /* visually-grouped icon buttons that always stay together */
+        .icon-cluster {
+            display: inline-flex;
+            align-items: center;
+            background: var(--bg-elev-2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 2px;
+            gap: 0;
+            flex: 0 0 auto;
+        }
+        .icon-cluster > button.icon-btn,
+        .icon-cluster .badge-wrap > button.icon-btn {
+            background: transparent;
+            border: none;
+            border-radius: 7px;
+            padding: 5px 9px;
+        }
+        .icon-cluster > button.icon-btn:hover,
+        .icon-cluster .badge-wrap > button.icon-btn:hover {
+            background: var(--border);
+        }
+
+        /* badge-wrap keeps button + badge as one flex item that can never split */
+        .badge-wrap {
+            position: relative;
+            display: inline-flex;
+            flex: 0 0 auto;
+        }
+        #errorBadge {
+            display: none;
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            min-width: 16px;
+            height: 16px;
+            padding: 0 5px;
+            border-radius: 9px;
+            background: var(--danger);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            line-height: 16px;
+            text-align: center;
+            pointer-events: none;
+            box-shadow: 0 0 0 2px var(--bg-elev);
+        }
+        #errorBadge.show { display: inline-block; }
 
         #brand {
             margin: 0;
@@ -115,6 +164,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            min-width: 0;
         }
 
         button, select, input[type="search"] {
@@ -130,7 +180,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         button:hover    { background: var(--border); }
         button:active   { transform: translateY(1px); }
         button.danger   { color: var(--danger); }
-        button.icon-btn { padding: 6px 10px; }
+        button.icon-btn { padding: 6px 10px; line-height: 1; }
         button:focus-visible, select:focus-visible, input:focus-visible {
             outline: 2px solid var(--accent);
             outline-offset: 1px;
@@ -139,17 +189,19 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             background: var(--input-bg);
             cursor: text;
             width: 100%;
-            max-width: 480px;
+            max-width: 520px;
         }
         select { padding-right: 8px; }
         #packSwitcher {
-            max-width: 180px;
+            max-width: 200px;
             min-width: 0;
             text-overflow: ellipsis;
             overflow: hidden;
             white-space: nowrap;
         }
-        .nav-right select { max-width: 160px; }
+        .nav-right select { max-width: 170px; flex: 0 1 auto; min-width: 0; }
+        #wiper .wiper-icon { display: none; font-weight: 700; line-height: 1; }
+        #wiper { white-space: nowrap; flex: 0 0 auto; }
 
         /* ---------- grid ---------- */
         #games {
@@ -519,21 +571,6 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         @media (max-width: 720px) and (orientation: landscape) {
             #errorModal .panel { height: 100vh; }
         }
-        #errorBadge {
-            display: none;
-            min-width: 16px; height: 16px;
-            padding: 0 5px;
-            border-radius: 9px;
-            background: var(--danger);
-            color: #fff;
-            font-size: 10px;
-            font-weight: 700;
-            line-height: 16px;
-            text-align: center;
-            margin-left: -6px;
-            transform: translateY(-8px);
-        }
-        #errorBadge.show { display: inline-block; }
 
        
         /* ---------- favorite star ---------- */
@@ -603,9 +640,14 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         .container:focus-visible { outline-offset: -2px; }
 
         /* ---------- responsive nav ---------- */
+        @media (max-width: 1080px) {
+            #wiper .wiper-text { display: none; }
+            #wiper .wiper-icon { display: inline; font-size: 16px; }
+            #wiper { padding: 6px 10px; }
+        }
         @media (max-width: 960px) {
             #nav {
-                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+                grid-template-columns: minmax(0, 1fr) minmax(0, auto);
                 grid-template-areas:
                     "left  right"
                     "center center";
@@ -627,7 +669,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                     "right";
                 gap: 8px;
             }
-            .nav-left   { justify-content: space-between; flex-wrap: wrap; }
+            .nav-left   { justify-content: space-between; flex-wrap: wrap; gap: 6px; }
             .nav-right  { justify-content: flex-start; flex-wrap: wrap; gap: 6px; }
             .nav-center { justify-content: stretch; }
             #packMeta { display: none; }
@@ -635,8 +677,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             #packSwitcher { flex: 1 1 auto; max-width: none; }
         }
         @media (max-width: 420px) {
-            button.icon-btn { padding: 6px 8px; }
-            #wiper { font-size: 12px; padding: 6px 10px; }
+            .icon-cluster > button.icon-btn,
+            .icon-cluster .badge-wrap > button.icon-btn { padding: 5px 7px; }
         }
     </style>
 </head>
@@ -660,10 +702,15 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                     <option value="recent">Recently played</option>
                     <option value="favorites">Favorites first</option>
                 </select>
-                <button id="themeToggle" class="icon-btn" title="Toggle theme (T)" aria-label="Toggle theme">🌙</button>
-                <button id="helpBtn" class="icon-btn" title="Keyboard shortcuts (?)" aria-label="Help">?</button>
-                <button id="errorLogBtn" class="icon-btn" title="Error log (E)" aria-label="Error log">⚠</button><span id="errorBadge" aria-hidden="true">0</span>
-                <button id="wiper" class="danger hidden" title="Remove the active pack">Remove pack</button>
+                <div class="icon-cluster">
+                    <button id="themeToggle" class="icon-btn" title="Toggle theme (T)" aria-label="Toggle theme">🌙</button>
+                    <button id="helpBtn" class="icon-btn" title="Keyboard shortcuts (?)" aria-label="Help">?</button>
+                    <span class="badge-wrap">
+                        <button id="errorLogBtn" class="icon-btn" title="Error log (E)" aria-label="Error log">⚠</button>
+                        <span id="errorBadge" aria-hidden="true">0</span>
+                    </span>
+                </div>
+                <button id="wiper" class="danger hidden" title="Remove the active pack" aria-label="Remove pack"><span class="wiper-text">Remove pack</span><span class="wiper-icon" aria-hidden="true">×</span></button>
             </div>
         </div>
         <div id="tagBar" class="hidden"></div>
