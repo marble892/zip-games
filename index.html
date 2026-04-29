@@ -85,10 +85,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         /* ---------- nav ---------- */
         #nav {
             flex-shrink: 0;
-            padding: 12px 24px;
+            padding: 8px 14px;
             display: grid;
-            grid-template-columns: 1fr 2fr 1fr;
-            gap: 12px;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr);
+            gap: 10px;
             align-items: center;
             background: var(--bg-elev);
             border-bottom: 1px solid var(--border);
@@ -96,9 +96,73 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             position: sticky;
             top: 0;
         }
-        .nav-left   { display: flex; justify-content: flex-start; align-items: center; gap: 12px; min-width: 0; }
-        .nav-center { display: flex; justify-content: center; }
-        .nav-right  { display: flex; justify-content: flex-end; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .nav-left   { display: flex; justify-content: flex-start; align-items: center; gap: 8px; min-width: 0; }
+        .nav-center { display: flex; justify-content: center; min-width: 0; }
+        .nav-right  { display: flex; justify-content: flex-end; align-items: center; gap: 6px; flex-wrap: nowrap; min-width: 0; }
+
+        /* visually-grouped icon buttons that always stay together */
+        .icon-cluster {
+            display: inline-flex;
+            align-items: stretch;
+            background: var(--bg-elev-2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 0;
+            gap: 0;
+            flex: 0 0 auto;
+            box-sizing: border-box;
+            height: 34px;
+            overflow: hidden;
+        }
+        .icon-cluster > button.icon-btn,
+        .icon-cluster .badge-wrap > button.icon-btn {
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            padding: 0 10px;
+            height: 100%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+        .icon-cluster > * + *,
+        .icon-cluster > .badge-wrap + .badge-wrap,
+        .icon-cluster > button + .badge-wrap,
+        .icon-cluster > .badge-wrap + button {
+            border-left: 1px solid var(--border);
+        }
+        .icon-cluster > button.icon-btn:hover,
+        .icon-cluster .badge-wrap > button.icon-btn:hover {
+            background: var(--border);
+        }
+        .icon-cluster .badge-wrap { display: inline-flex; }
+
+        /* badge-wrap keeps button + badge as one flex item that can never split */
+        .badge-wrap {
+            position: relative;
+            display: inline-flex;
+            flex: 0 0 auto;
+        }
+        #errorBadge {
+            display: none;
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            min-width: 16px;
+            height: 16px;
+            padding: 0 5px;
+            border-radius: 9px;
+            background: var(--danger);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            line-height: 16px;
+            text-align: center;
+            pointer-events: none;
+            box-shadow: 0 0 0 2px var(--bg-elev);
+        }
+        #errorBadge.show { display: inline-block; }
 
         #brand {
             margin: 0;
@@ -115,6 +179,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            min-width: 0;
         }
 
         button, select, input[type="search"] {
@@ -126,11 +191,16 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             padding: 6px 12px;
             cursor: pointer;
             transition: background .15s ease, border-color .15s ease, transform .05s ease;
+            box-sizing: border-box;
         }
+        .nav-right > select,
+        .nav-right > #wiper,
+        .nav-left  > select,
+        .nav-left  > button.icon-btn { height: 34px; }
         button:hover    { background: var(--border); }
         button:active   { transform: translateY(1px); }
         button.danger   { color: var(--danger); }
-        button.icon-btn { padding: 6px 10px; }
+        button.icon-btn { padding: 6px 10px; line-height: 1; }
         button:focus-visible, select:focus-visible, input:focus-visible {
             outline: 2px solid var(--accent);
             outline-offset: 1px;
@@ -139,9 +209,19 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             background: var(--input-bg);
             cursor: text;
             width: 100%;
-            max-width: 480px;
+            max-width: 520px;
         }
         select { padding-right: 8px; }
+        #packSwitcher {
+            max-width: 200px;
+            min-width: 0;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        .nav-right select { max-width: 170px; flex: 0 1 auto; min-width: 0; }
+        #wiper .wiper-icon { display: none; font-weight: 700; line-height: 1; }
+        #wiper { white-space: nowrap; flex: 0 0 auto; }
 
         /* ---------- grid ---------- */
         #games {
@@ -242,9 +322,14 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             border: 1px solid var(--border);
             border-radius: 14px;
             padding: 22px 24px;
-            min-width: 280px;
-            max-width: min(520px, 92vw);
+            min-width: 0;
+            max-width: min(520px, calc(100vw - 24px));
+            max-height: calc(100vh - 24px);
+            overflow: auto;
             box-shadow: 0 10px 30px rgba(0,0,0,.45);
+        }
+        @media (max-width: 480px) {
+            .modal .panel { padding: 16px; border-radius: 12px; }
         }
         .modal h3 { margin: 0 0 14px; font-size: 1.05rem; }
         .modal .row { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -297,7 +382,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         /* ---------- toast / status ---------- */
         #toast {
             position: fixed;
-            bottom: 20px;
+            bottom: max(20px, env(safe-area-inset-bottom, 0px));
             left: 50%;
             transform: translateX(-50%) translateY(20px);
             background: var(--bg-elev);
@@ -310,13 +395,31 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             pointer-events: none;
             transition: opacity .2s ease, transform .2s ease;
             z-index: 300;
-            max-width: 80vw;
+            max-width: min(560px, calc(100vw - 24px));
+            width: max-content;
+            font-size: 14px;
+            line-height: 1.35;
+            word-wrap: break-word;
+            overflow-wrap: anywhere;
+            text-align: center;
         }
         #toast.show {
             opacity: 1;
             transform: translateX(-50%) translateY(0);
         }
         #toast.error { border-color: var(--danger); }
+        @media (max-width: 480px) {
+            #toast {
+                left: 12px;
+                right: 12px;
+                transform: translateY(20px);
+                max-width: none;
+                width: auto;
+                padding: 9px 14px;
+                font-size: 13px;
+            }
+            #toast.show { transform: translateY(0); }
+        }
 
         /* ---------- loading spinner ---------- */
         #loader {
@@ -386,15 +489,216 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         #diagList li.warn { color: var(--fg-muted); }
         #diagList li.err  { color: var(--danger); }
 
+        /* ---------- error log ---------- */
+        #errorModal .panel { width: min(880px, 96vw); max-height: 90vh; display: flex; flex-direction: column; padding: 18px 20px; }
+        #errorModal h3 { margin: 0 0 4px; }
+        #errorSummary { color: var(--fg-muted); font-size: 13px; margin: 0 0 10px; }
+        #errorTableWrap { overflow: auto; flex: 1; border: 1px solid var(--border); border-radius: 8px; -webkit-overflow-scrolling: touch; }
+        #errorTable {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            min-width: 720px;
+        }
+        #errorTable thead th {
+            position: sticky; top: 0;
+            background: var(--input-bg);
+            text-align: left;
+            padding: 8px 10px;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            color: var(--fg-muted);
+            white-space: nowrap;
+        }
+        #errorTable tbody td {
+            padding: 8px 10px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+        }
+        #errorTable tbody tr:last-child td { border-bottom: none; }
+        #errorTable .sev {
+            display: inline-block;
+            padding: 1px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+        #errorTable .sev.error { background: rgba(220, 70, 70, .18);  color: var(--danger); }
+        #errorTable .sev.warn  { background: rgba(220, 170, 50, .18); color: #d8a93a; }
+        #errorTable .sev.info  { background: rgba(80, 140, 220, .18); color: #6aa6e6; }
+        #errorTable code.code  { font-size: 11px; color: var(--fg-muted); }
+        #errorTable .msg       { max-width: 320px; word-break: break-word; }
+        #errorTable .src       { color: var(--fg-muted); font-size: 11px; white-space: nowrap; }
+        #errorTable .recovery  { display: flex; flex-wrap: wrap; gap: 4px; }
+        #errorTable .recovery button { font-size: 11px; padding: 3px 8px; border-radius: 6px; }
+        #errorTable tr.empty td { text-align: center; color: var(--fg-muted); padding: 24px; }
+
+        /* error footer row */
+        #errorModal .error-footer {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+        #errorModal .error-footer .group { display: flex; gap: 6px; flex-wrap: wrap; }
+
+        /* card layout on narrow screens */
+        @media (max-width: 720px) {
+            #errorModal .panel { width: 100%; max-height: 100vh; height: 100vh; border-radius: 0; padding: 14px; }
+            #errorTableWrap { border: none; }
+            #errorTable { min-width: 0; display: block; }
+            #errorTable thead { display: none; }
+            #errorTable tbody, #errorTable tr { display: block; }
+            #errorTable tr {
+                border: 1px solid var(--border);
+                border-radius: 10px;
+                padding: 8px 10px;
+                margin-bottom: 8px;
+                background: var(--bg-elev-2);
+            }
+            #errorTable tbody td {
+                display: grid;
+                grid-template-columns: 80px 1fr;
+                gap: 8px;
+                padding: 4px 0;
+                border-bottom: none;
+                align-items: start;
+            }
+            #errorTable tbody td::before {
+                content: attr(data-label);
+                color: var(--fg-muted);
+                font-size: 11px;
+                text-transform: uppercase;
+                letter-spacing: .04em;
+                padding-top: 2px;
+            }
+            #errorTable .msg { max-width: none; }
+            #errorTable tr.empty {
+                display: block;
+                background: transparent;
+                border: none;
+            }
+            #errorTable tr.empty td {
+                display: block;
+                text-align: center;
+            }
+            #errorTable tr.empty td::before { content: none; }
+        }
+        @media (max-width: 720px) and (orientation: landscape) {
+            #errorModal .panel { height: 100vh; }
+        }
+
+       
+        /* ---------- favorite star ---------- */
+        .fav-btn {
+            position: absolute;
+            top: 6px; left: 6px;
+            width: 28px; height: 28px;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(0,0,0,.45);
+            border: none;
+            border-radius: 50%;
+            color: #ddd;
+            font-size: 16px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity .15s ease, color .15s ease, background .15s ease;
+            z-index: 2;
+        }
+        .container:hover .fav-btn,
+        .container:focus-within .fav-btn,
+        .fav-btn[aria-pressed="true"] { opacity: 1; }
+        .fav-btn[aria-pressed="true"] { color: #ffce4d; }
+        .fav-btn:hover { background: rgba(0,0,0,.65); }
+
+        /* ---------- command palette ---------- */
+        #paletteModal .panel { width: min(520px, 92vw); padding: 10px; }
+        #paletteInput {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            background: var(--input-bg);
+            color: var(--fg);
+            border: 1px solid var(--border);
+            font-size: 14px;
+            outline: none;
+        }
+        #paletteInput:focus { border-color: var(--accent); }
+        #paletteList {
+            list-style: none;
+            margin: 8px 0 0;
+            padding: 0;
+            max-height: 50vh;
+            overflow: auto;
+        }
+        #paletteList li {
+            padding: 8px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex; gap: 10px; align-items: center;
+            color: var(--fg);
+        }
+        #paletteList li .pal-kind {
+            font-size: 11px;
+            color: var(--fg-muted);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 1px 6px;
+            margin-left: auto;
+        }
+        #paletteList li.active,
+        #paletteList li:hover { background: var(--bg-elev-2); }
+        #paletteList li.empty { color: var(--fg-muted); cursor: default; }
+        #paletteList li.empty:hover { background: transparent; }
+
+        /* ---------- focus visibility ---------- */
+        :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+        .container:focus-visible { outline-offset: -2px; }
+
         /* ---------- responsive nav ---------- */
+        @media (max-width: 1080px) {
+            #wiper .wiper-text { display: none; }
+            #wiper .wiper-icon { display: inline; font-size: 16px; }
+            #wiper { padding: 6px 10px; }
+        }
+        @media (max-width: 960px) {
+            #nav {
+                grid-template-columns: minmax(0, 1fr) minmax(0, auto);
+                grid-template-areas:
+                    "left  right"
+                    "center center";
+                row-gap: 8px;
+            }
+            .nav-left   { grid-area: left; }
+            .nav-right  { grid-area: right; justify-content: flex-end; }
+            .nav-center { grid-area: center; }
+            input#search { max-width: none; }
+            #brand { font-size: 1rem; }
+        }
         @media (max-width: 720px) {
             #nav {
+                padding: 8px 10px;
                 grid-template-columns: 1fr;
+                grid-template-areas:
+                    "left"
+                    "center"
+                    "right";
                 gap: 8px;
             }
-            .nav-left, .nav-center, .nav-right {
-                justify-content: center;
-            }
+            .nav-left   { justify-content: space-between; flex-wrap: wrap; gap: 6px; }
+            .nav-right  { justify-content: flex-start; flex-wrap: wrap; gap: 6px; }
+            .nav-center { justify-content: stretch; }
+            #packMeta { display: none; }
+            .nav-right select,
+            #packSwitcher { flex: 1 1 auto; max-width: none; }
+        }
+        @media (max-width: 420px) {
+            .icon-cluster > button.icon-btn,
+            .icon-cluster .badge-wrap > button.icon-btn { padding: 5px 7px; }
         }
     </style>
 </head>
@@ -416,10 +720,17 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                     <option value="default">Default order</option>
                     <option value="name">Name (A–Z)</option>
                     <option value="recent">Recently played</option>
+                    <option value="favorites">Favorites first</option>
                 </select>
-                <button id="themeToggle" class="icon-btn" title="Toggle theme (T)" aria-label="Toggle theme">🌙</button>
-                <button id="helpBtn" class="icon-btn" title="Keyboard shortcuts (?)" aria-label="Help">?</button>
-                <button id="wiper" class="danger hidden" title="Remove the active pack">Remove pack</button>
+                <div class="icon-cluster">
+                    <button id="themeToggle" class="icon-btn" title="Toggle theme (T)" aria-label="Toggle theme">🌙</button>
+                    <button id="helpBtn" class="icon-btn" title="Keyboard shortcuts (?)" aria-label="Help">?</button>
+                    <span class="badge-wrap">
+                        <button id="errorLogBtn" class="icon-btn" title="Error log (E)" aria-label="Error log">⚠</button>
+                        <span id="errorBadge" aria-hidden="true">0</span>
+                    </span>
+                </div>
+                <button id="wiper" class="danger hidden" title="Remove the active pack" aria-label="Remove pack"><span class="wiper-text">Remove pack</span><span class="wiper-icon" aria-hidden="true">×</span></button>
             </div>
         </div>
         <div id="tagBar" class="hidden"></div>
@@ -441,9 +752,12 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     <div id="overlay" class="modal hidden" role="dialog" aria-modal="true" aria-label="Game menu">
         <div class="panel">
             <h3 id="overlayTitle">Game Menu</h3>
+            <div id="crashNotice" class="hidden" style="color:var(--danger); margin:6px 0 10px; font-size:13px;"></div>
             <div class="row">
                 <button id="resumeBtn">Resume</button>
+                <button id="reloadBtn">Reload game</button>
                 <button id="fullscreenBtn">Fullscreen</button>
+                <button id="clearSaveBtn" class="hidden">Clear save</button>
                 <button id="exitBtn" class="danger">Exit to Library</button>
             </div>
             <div class="hint">Press <kbd>Esc</kbd> or <kbd>Alt</kbd>+<kbd>M</kbd> to toggle this menu.</div>
@@ -463,6 +777,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                 <dt><kbd>F</kbd></dt>                       <dd>Fullscreen (in-game)</dd>
                 <dt><kbd>T</kbd></dt>                       <dd>Toggle theme</dd>
                 <dt><kbd>?</kbd></dt>                       <dd>Show this help</dd>
+                <dt><kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>K</kbd></dt> <dd>Command palette</dd>
+                <dt><kbd>S</kbd> on a tile</dt>             <dd>Toggle favorite</dd>
+                <dt><kbd>E</kbd></dt>                       <dd>Open error log</dd>
+                <dt>Gamepad</dt>                            <dd>D-pad / stick to move, A to open, B to back, Start for menu</dd>
             </dl>
             <h3 style="margin-top:18px;">Settings</h3>
             <div class="row">
@@ -488,6 +806,46 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         </div>
     </div>
 
+    <!-- error log modal -->
+    <div id="errorModal" class="modal hidden" role="dialog" aria-modal="true" aria-label="Error log">
+        <div class="panel">
+            <h3>Error log &amp; recovery</h3>
+            <p id="errorSummary">No errors recorded yet.</p>
+            <div id="errorTableWrap">
+                <table id="errorTable">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Severity</th>
+                            <th>Code</th>
+                            <th>Message</th>
+                            <th>Source</th>
+                            <th>Recovery</th>
+                        </tr>
+                    </thead>
+                    <tbody id="errorTableBody">
+                        <tr class="empty"><td colspan="6">No errors recorded yet.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="error-footer">
+                <div class="group">
+                    <button id="errorCopyBtn" title="Copy log as JSON to the clipboard">Copy log</button>
+                    <button id="errorClearBtn" class="danger" title="Clear all recorded errors">Clear log</button>
+                </div>
+                <button id="errorClose">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- command palette -->
+    <div id="paletteModal" class="modal hidden" role="dialog" aria-modal="true" aria-label="Command palette">
+        <div class="panel">
+            <input id="paletteInput" type="text" placeholder="Type a command or game name…" aria-label="Command palette" autocomplete="off" spellcheck="false">
+            <ul id="paletteList" role="listbox"></ul>
+        </div>
+    </div>
+
     <div id="loader" class="hidden">
         <div style="text-align:center;">
             <div class="spinner"></div>
@@ -501,7 +859,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 "use strict";
 
 /* =========================================================
- * Zipped Games — single-file HTML app
+ * Zipped Games — single-file HTML zip loader made by marble :3
  * Loads an offline zip pack and renders a small library UI.
  * ========================================================= */
 (() => {
@@ -516,7 +874,11 @@ const THEME_KEY  = "zg.theme";
 const SORT_KEY   = "zg.sort";
 const RECENT_KEY = "zg.recents";
 const TAGS_KEY   = "zg.activeTags";
+const FAV_KEY    = "zg.favorites";
+const SAVE_PREFIX = "zg.save.";
 const RECENTS_MAX = 200;
+const ERROR_LOG_KEY = "zg.errorLog";
+const ERROR_LOG_MAX = 100;
 
 /* ---------------- DOM refs ---------------- */
 const $ = (id) => document.getElementById(id);
@@ -551,8 +913,22 @@ const dom = {
     diagList:   $("diagList"),
     diagContinue: $("diagContinue"),
     diagClose:  $("diagClose"),
+    errorModal: $("errorModal"),
+    errorSummary: $("errorSummary"),
+    errorTableBody: $("errorTableBody"),
+    errorClose: $("errorClose"),
+    errorClearBtn: $("errorClearBtn"),
+    errorCopyBtn: $("errorCopyBtn"),
+    errorLogBtn: $("errorLogBtn"),
+    errorBadge: $("errorBadge"),
     exportSettingsBtn: $("exportSettingsBtn"),
     importSettingsBtn: $("importSettingsBtn"),
+    reloadBtn:  $("reloadBtn"),
+    clearSaveBtn: $("clearSaveBtn"),
+    crashNotice: $("crashNotice"),
+    paletteModal: $("paletteModal"),
+    paletteInput: $("paletteInput"),
+    paletteList: $("paletteList"),
 };
 
 /* ---------------- app state ---------------- */
@@ -567,12 +943,17 @@ const state = {
     tiles:       [],   // {el, game}
     recents:     loadRecents(),
     activeTags:  loadActiveTags(),
+    favorites:   loadFavorites(),
     activePackId: null,
     packs:       [],
     scrollY:     0,
-};
-
-/* ---------------- small utils ---------------- */
+    lastFocus:   null,
+    crashed:     false,
+    gamepadRAF:  0,
+    gamepadPrev: {},
+    gamepadHold: 0,
+    errors:      [],   // [{id, code, severity, message, source, detail, ts, recovery}]
+};/* ---------------- small utils ---------------- */
 function safeStorageGet(key) {
     try { return localStorage.getItem(key); } catch { return null; }
 }
@@ -592,6 +973,33 @@ function loadActiveTags() {
 }
 function saveActiveTags() {
     safeStorageSet(TAGS_KEY, JSON.stringify([...state.activeTags]));
+}
+
+function loadFavorites() {
+    try {
+        const arr = JSON.parse(safeStorageGet(FAV_KEY) || "[]");
+        return new Set(Array.isArray(arr) ? arr.filter(t => typeof t === "string") : []);
+    } catch { return new Set(); }
+}
+function saveFavorites() {
+    safeStorageSet(FAV_KEY, JSON.stringify([...state.favorites]));
+}
+function toggleFavorite(game) {
+    const k = recentsKey(game);
+    if (state.favorites.has(k)) state.favorites.delete(k);
+    else state.favorites.add(k);
+    saveFavorites();
+    refreshFavoriteStars();
+    if (dom.sort.value === "favorites") applySortAndFilter();
+}
+function refreshFavoriteStars() {
+    for (const { el, game } of state.tiles) {
+        const btn = el.querySelector(".fav-btn");
+        if (!btn) continue;
+        const on = state.favorites.has(recentsKey(game));
+        btn.setAttribute("aria-pressed", on ? "true" : "false");
+        btn.textContent = on ? "★" : "☆";
+    }
 }
 function saveRecents() {
     const entries = Object.entries(state.recents)
@@ -801,7 +1209,7 @@ async function removeActivePack() {
         await setActivePackId(remaining[0]?.id || null);
         location.reload();
     } catch (e) {
-        toast("Failed to remove pack: " + (e.message || e), { error: true });
+        reportError("PACK_REMOVE", { detail: e, retry: removeActivePack });
     }
 }
 
@@ -812,29 +1220,29 @@ async function renderZip(arrayBuffer) {
         state.zip = await JSZip.loadAsync(arrayBuffer);
     } catch (e) {
         hideLoader();
-        toast("Couldn't read that file. Is it a valid .zip?", { error: true });
+        reportError("ZIP_PARSE", { detail: e });
         throw e;
     }
 
     const dataFile = state.zip.file("data.json");
     if (!dataFile) {
         hideLoader();
-        toast("Pack is missing data.json", { error: true });
+        reportError("DATA_MISSING");
         return;
     }
 
     let pack;
     try {
         pack = JSON.parse(await dataFile.async("string"));
-    } catch {
+    } catch (e) {
         hideLoader();
-        toast("data.json is malformed", { error: true });
+        reportError("DATA_MALFORMED", { detail: e });
         return;
     }
 
     if (!pack || !Array.isArray(pack.games)) {
         hideLoader();
-        toast("data.json has no games array", { error: true });
+        reportError("DATA_NO_GAMES");
         return;
     }
 
@@ -895,8 +1303,20 @@ function buildTile(game) {
     tile.className = "container no-cover";
     tile.tabIndex = 0;
     tile.setAttribute("role", "button");
+    tile.setAttribute("aria-label", game.displayName || game.fileName);
     tile.dataset.cover = game.cover || "";
     if (game.description) tile.title = game.description;
+
+    const isFav = state.favorites.has(recentsKey(game));
+    const fav = document.createElement("button");
+    fav.type = "button";
+    fav.className = "fav-btn";
+    fav.setAttribute("aria-pressed", isFav ? "true" : "false");
+    fav.setAttribute("aria-label", "Toggle favorite");
+    fav.title = "Favorite (S)";
+    fav.textContent = isFav ? "★" : "☆";
+    fav.addEventListener("click", (e) => { e.stopPropagation(); toggleFavorite(game); });
+    tile.appendChild(fav);
 
     const label = document.createElement("p");
     label.textContent = game.displayName || game.fileName;
@@ -926,6 +1346,9 @@ function buildTile(game) {
             e.preventDefault();
             if (e.ctrlKey || e.metaKey) openGameNewTab(game);
             else openGame(game);
+        } else if (e.key === "s" || e.key === "S") {
+            e.preventDefault();
+            toggleFavorite(game);
         }
     });
 
@@ -1018,6 +1441,13 @@ function applySortAndFilter() {
         visible.sort((a, b) =>
             (state.recents[recentsKey(b.game)] || 0) -
             (state.recents[recentsKey(a.game)] || 0));
+    } else if (sortMode === "favorites") {
+        visible.sort((a, b) => {
+            const fa = state.favorites.has(recentsKey(a.game)) ? 1 : 0;
+            const fb = state.favorites.has(recentsKey(b.game)) ? 1 : 0;
+            if (fa !== fb) return fb - fa;
+            return a.game.__index - b.game.__index;
+        });
     } else {
         visible.sort((a, b) => a.game.__index - b.game.__index);
     }
@@ -1043,11 +1473,11 @@ async function readGameHtml(game) {
     const path = (state.pack.fileBase || "") + game.fileName;
     const file = state.zip.file(path);
     if (!file) {
-        toast(`Missing game file: ${game.fileName}`, { error: true });
+        reportError("GAME_FILE_MISSING", { detail: { fileName: game.fileName } });
         return null;
     }
     try { return await file.async("string"); }
-    catch { toast("Failed to read game file", { error: true }); return null; }
+    catch (e) { reportError("GAME_FILE_READ", { detail: e }); return null; }
 }
 
 async function openGame(game) {
@@ -1060,7 +1490,12 @@ async function openGame(game) {
     state.scrollY     = window.scrollY;
     state.currentGame = game;
     state.gameOpen    = true;
+    state.crashed     = false;
+    state.lastFocus   = document.activeElement;
     dom.overlayTitle.textContent = game.displayName || "Game Menu";
+    dom.crashNotice.classList.add("hidden");
+    dom.crashNotice.textContent = "";
+    dom.clearSaveBtn.classList.toggle("hidden", !hasSave(game));
 
     state.recents[recentsKey(game)] = Date.now();
     saveRecents();
@@ -1073,6 +1508,7 @@ async function openGame(game) {
         const onLoad = () => {
             dom.frame.removeEventListener("load", onLoad);
             attachInnerKeyHandler();
+            attachInnerCrashHandler();
             try { dom.frame.contentWindow?.focus(); } catch {}
             hideLoader();
         };
@@ -1096,7 +1532,7 @@ async function openGameNewTab(game) {
     if (dom.sort.value === "recent") applySortAndFilter();
 
     const win = window.open(url, "_blank", "noopener");
-    if (!win) toast("Pop-up blocked. Allow pop-ups to open in a new tab.", { error: true });
+    if (!win) reportError("POPUP_BLOCKED");
 }
 
 function closeGame() {
@@ -1117,9 +1553,17 @@ function closeGame() {
 
     state.gameOpen    = false;
     state.currentGame = null;
+    state.crashed     = false;
+    dom.crashNotice.classList.add("hidden");
+    dom.crashNotice.textContent = "";
 
     refreshRecentsBadges();
     if (dom.sort.value === "recent") applySortAndFilter();
+
+    // restore previous focus where possible
+    if (state.lastFocus && document.contains(state.lastFocus)) {
+        try { state.lastFocus.focus(); } catch {}
+    }
 }
 
 function refreshRecentsBadges() {
@@ -1158,6 +1602,21 @@ function toggleOverlay() {
 
 dom.resumeBtn.addEventListener("click", hideOverlay);
 dom.exitBtn.addEventListener("click", closeGame);
+dom.reloadBtn.addEventListener("click", () => {
+    if (!state.currentGame) return;
+    const g = state.currentGame;
+    hideOverlay();
+    // re-open same game by closing then re-opening
+    closeGame();
+    setTimeout(() => openGame(g), 220);
+});
+dom.clearSaveBtn.addEventListener("click", () => {
+    if (!state.currentGame) return;
+    if (!confirm(`Clear saved data for "${state.currentGame.displayName || state.currentGame.fileName}"?`)) return;
+    clearSave(state.currentGame);
+    dom.clearSaveBtn.classList.add("hidden");
+    toast("Save cleared");
+});
 dom.overlay.addEventListener("click", (e) => {
     if (e.target === dom.overlay) hideOverlay();
 });
@@ -1169,7 +1628,7 @@ dom.fullscreenBtn.addEventListener("click", () => {
 function toggleFullscreen() {
     const el = dom.frame;
     if (!document.fullscreenElement) {
-        el.requestFullscreen?.().catch(() => toast("Fullscreen denied", { error: true }));
+        el.requestFullscreen?.().catch((e) => reportError("FULLSCREEN_DENIED", { detail: e }));
     } else {
         document.exitFullscreen?.().catch(() => {});
     }
@@ -1236,8 +1695,24 @@ document.addEventListener("keydown", (e) => {
         return;
     }
 
+    // Ctrl/Cmd+K opens command palette regardless of focus
+    if ((e.ctrlKey || e.metaKey) && (e.key === "k" || e.key === "K")) {
+        e.preventDefault();
+        togglePalette();
+        return;
+    }
+
+    if (e.key === "Escape" && !dom.paletteModal.classList.contains("hidden")) {
+        hidePalette(); return;
+    }
     if (e.key === "Escape" && !dom.helpModal.classList.contains("hidden")) {
         hideHelp(); return;
+    }
+    if (e.key === "Escape" && !dom.diagModal.classList.contains("hidden")) {
+        dom.diagModal.classList.add("hidden"); return;
+    }
+    if (e.key === "Escape" && !dom.errorModal.classList.contains("hidden")) {
+        hideErrorModal(); return;
     }
 
     if (isTypingTarget(e.target)) {
@@ -1252,6 +1727,7 @@ document.addEventListener("keydown", (e) => {
     if (e.key === "/")               { e.preventDefault(); dom.search.focus(); return; }
     if (e.key === "?")               { e.preventDefault(); showHelp(); return; }
     if (e.key === "t" || e.key === "T") { toggleTheme(); return; }
+    if (e.key === "e" || e.key === "E") { e.preventDefault(); toggleErrorModal(); return; }
 
     if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
         navigateGrid(e);
@@ -1297,7 +1773,7 @@ async function loadZipFile(file) {
         file.type === "application/zip" ||
         file.type === "application/x-zip-compressed";
     if (!okExt && !okMime) {
-        toast("Please choose a .zip file", { error: true });
+        reportError("FILE_INVALID", { detail: { name: file?.name, type: file?.type } });
         return;
     }
     showLoader("Saving pack…");
@@ -1308,7 +1784,7 @@ async function loadZipFile(file) {
         location.reload();
     } catch (e) {
         hideLoader();
-        toast("Could not save pack: " + (e.message || e), { error: true });
+        reportError("PACK_SAVE", { detail: e });
     }
 }
 
@@ -1324,7 +1800,7 @@ async function openFilePicker() {
             const file = await handle.getFile();
             await loadZipFile(file);
         } catch (e) {
-            if (e && e.name !== "AbortError") toast("Could not open file", { error: true });
+            if (e && e.name !== "AbortError") reportError("FILE_OPEN", { detail: e });
         }
     } else {
         const input = document.createElement("input");
@@ -1364,23 +1840,56 @@ function wireDropZone() {
 
 /* allow dropping a new zip anywhere on the library to replace the pack */
 function wireGlobalDrop() {
-    let depth = 0;
     const isFileDrag = (e) => e.dataTransfer && Array.from(e.dataTransfer.types || []).includes("Files");
+
+    let active = false;
+    let lastOver = 0;
+    let watchdog = 0;
+
+    const setActive = (on) => {
+        if (active === on) return;
+        active = on;
+        document.body.classList.toggle("drag-over", on);
+    };
+
+    const stopWatchdog = () => {
+        if (watchdog) { clearInterval(watchdog); watchdog = 0; }
+    };
+    const startWatchdog = () => {
+        if (watchdog) return;
+        watchdog = setInterval(() => {
+            if (performance.now() - lastOver > 250) {
+                setActive(false);
+                stopWatchdog();
+            }
+        }, 120);
+    };
 
     window.addEventListener("dragenter", (e) => {
         if (state.gameOpen || !isFileDrag(e)) return;
-        depth++;
-        document.body.classList.add("drag-over");
+        lastOver = performance.now();
+        setActive(true);
+        startWatchdog();
     });
-    window.addEventListener("dragleave", () => {
-        if (--depth <= 0) { depth = 0; document.body.classList.remove("drag-over"); }
+    window.addEventListener("dragover", (e) => {
+        if (!isFileDrag(e)) return;
+        e.preventDefault();
+        if (state.gameOpen) return;
+        lastOver = performance.now();
+        setActive(true);
+        startWatchdog();
     });
-    window.addEventListener("dragover", (e) => { if (isFileDrag(e)) e.preventDefault(); });
+    window.addEventListener("dragleave", (e) => {
+        if (e.relatedTarget === null || (e.clientX === 0 && e.clientY === 0)) {
+            setActive(false);
+            stopWatchdog();
+        }
+    });
     window.addEventListener("drop", async (e) => {
         if (!isFileDrag(e)) return;
         e.preventDefault();
-        depth = 0;
-        document.body.classList.remove("drag-over");
+        setActive(false);
+        stopWatchdog();
         if (state.gameOpen) return;
         const file = e.dataTransfer.files?.[0];
         if (!file) return;
@@ -1388,6 +1897,17 @@ function wireGlobalDrop() {
             if (!confirm(`Add "${file.name}" as a new pack and switch to it?`)) return;
         }
         await loadZipFile(file);
+    });
+    // belt-and-suspenders: always clear when the window/tab loses focus
+    window.addEventListener("blur",          () => { setActive(false); stopWatchdog(); });
+    window.addEventListener("dragend",       () => { setActive(false); stopWatchdog(); });
+    document.addEventListener("mouseleave",  () => { setActive(false); stopWatchdog(); });
+    document.addEventListener("visibilitychange", () => {
+        if (document.hidden) { setActive(false); stopWatchdog(); }
+    });
+    // pressing Escape during a drag should also clear it
+    window.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && active) { setActive(false); stopWatchdog(); }
     });
 }
 
@@ -1488,6 +2008,294 @@ function buildTagBar() {
 function updateClearChip() {
     const c = document.getElementById("tagClear");
     if (c) c.style.display = state.activeTags.size > 0 ? "" : "none";
+}
+
+/* ---------------- error table & recovery ---------------- */
+/**
+ * Centralized error table. Each entry defines:
+ *   severity: "error" | "warn" | "info"
+ *   message:  default human-readable message (string OR function(detail) -> string)
+ *   source:   subsystem the error originated from (used in the table)
+ *   recovery: ordered list of recovery action keys (see RECOVERY_ACTIONS)
+ */
+const ERROR_CODES = {
+    ZIP_PARSE:         { severity: "error", source: "pack",     message: "Couldn't read that file. Is it a valid .zip?",            recovery: ["pickAnother", "removePack", "openHelp"] },
+    DATA_MISSING:      { severity: "error", source: "pack",     message: "Pack is missing data.json.",                                recovery: ["pickAnother", "removePack"] },
+    DATA_MALFORMED:    { severity: "error", source: "pack",     message: "data.json is malformed (invalid JSON).",                    recovery: ["pickAnother", "removePack", "openHelp"] },
+    DATA_NO_GAMES:     { severity: "error", source: "pack",     message: "data.json has no 'games' array.",                          recovery: ["pickAnother", "removePack"] },
+    PACK_SAVE:         { severity: "error", source: "storage",  message: (d) => "Could not save pack: " + (d?.message || "unknown"), recovery: ["retry", "clearStorage"] },
+    PACK_REMOVE:       { severity: "error", source: "storage",  message: (d) => "Failed to remove pack: " + (d?.message || "unknown"), recovery: ["retry", "reload"] },
+    GAME_FILE_MISSING: { severity: "error", source: "game",     message: (d) => "Missing game file: " + (d?.fileName || "?"),         recovery: ["openDiagnostics", "pickAnother"] },
+    GAME_FILE_READ:    { severity: "error", source: "game",     message: "Failed to read game file from the pack.",                  recovery: ["retry", "openDiagnostics"] },
+    POPUP_BLOCKED:     { severity: "warn",  source: "browser",  message: "Pop-up blocked. Allow pop-ups to open in a new tab.",       recovery: ["openHelp", "dismiss"] },
+    FULLSCREEN_DENIED: { severity: "warn",  source: "browser",  message: "Fullscreen request was denied by the browser.",             recovery: ["dismiss"] },
+    FILE_INVALID:      { severity: "warn",  source: "input",    message: "Please choose a .zip file.",                                recovery: ["pickAnother"] },
+    FILE_OPEN:         { severity: "warn",  source: "input",    message: "Could not open that file.",                                  recovery: ["pickAnother"] },
+    SETTINGS_IMPORT:   { severity: "error", source: "settings", message: (d) => "Could not import settings: " + (d?.message || "unknown"), recovery: ["retry"] },
+    PALETTE_ACTION:    { severity: "error", source: "ui",       message: (d) => "Action failed: " + (d?.message || "unknown"),         recovery: ["dismiss"] },
+    STORAGE_WRITE:     { severity: "warn",  source: "storage",  message: "Couldn't write to localStorage. Some preferences may not persist.", recovery: ["clearStorage", "dismiss"] },
+    INDEXEDDB_OPEN:    { severity: "error", source: "storage",  message: "Couldn't open the local database.",                          recovery: ["reload", "clearStorage"] },
+    UNHANDLED:         { severity: "error", source: "runtime",  message: (d) => "Unhandled error: " + (d?.message || "unknown"),       recovery: ["reload", "copyDetails"] },
+    PROMISE_REJECTION: { severity: "error", source: "runtime",  message: (d) => "Unhandled promise rejection: " + (d?.message || "unknown"), recovery: ["reload", "copyDetails"] },
+};
+
+/**
+ * Recovery actions registry. Each one knows how to mitigate / unblock the user.
+ * They receive the originating error entry and can return a Promise.
+ */
+const RECOVERY_ACTIONS = {
+    retry:           { label: "Retry",           run: (entry) => { if (typeof entry.retry === "function") return entry.retry(); toast("No retry handler available", { error: true }); } },
+    reload:          { label: "Reload page",     run: () => { location.reload(); } },
+    pickAnother:     { label: "Pick another\u2026", run: () => { try { hideErrorModal(); } catch {} openFilePicker(); } },
+    removePack:      { label: "Remove pack",     run: () => { try { hideErrorModal(); } catch {} removeActivePack(); } },
+    clearStorage:    { label: "Clear settings",  run: async () => {
+        if (!confirm("Clear ALL saved settings (theme, sort, recents, favorites, tags)? This cannot be undone.")) return;
+        for (const k of [THEME_KEY, SORT_KEY, RECENT_KEY, TAGS_KEY, FAV_KEY, ERROR_LOG_KEY]) {
+            try { localStorage.removeItem(k); } catch {}
+        }
+        toast("Settings cleared. Reloading\u2026");
+        setTimeout(() => location.reload(), 600);
+    } },
+    openDiagnostics: { label: "Run diagnostics", run: () => {
+        if (!state.pack) { toast("No pack loaded", { error: true }); return; }
+        try { hideErrorModal(); } catch {}
+        showDiagnostics(validatePack(state.pack));
+    } },
+    openHelp:        { label: "Help",            run: () => { try { hideErrorModal(); } catch {} showHelp(); } },
+    copyDetails:     { label: "Copy details",    run: (entry) => copyErrorEntry(entry) },
+    dismiss:         { label: "Dismiss",         run: (entry) => dismissError(entry.id) },
+};
+
+let _errorIdSeq = 0;
+function nextErrorId() { return "e" + Date.now().toString(36) + (_errorIdSeq++).toString(36); }
+
+function loadPersistedErrors() {
+    try {
+        const raw = safeStorageGet(ERROR_LOG_KEY);
+        if (!raw) return;
+        const arr = JSON.parse(raw);
+        if (Array.isArray(arr)) state.errors = arr.slice(-ERROR_LOG_MAX);
+    } catch {}
+    refreshErrorBadge();
+}
+
+function persistErrors() {
+    try {
+        // strip non-serializable retry handlers before persisting
+        const slim = state.errors.slice(-ERROR_LOG_MAX).map((e) => ({
+            id: e.id, code: e.code, severity: e.severity, message: e.message,
+            source: e.source, detail: e.detail, ts: e.ts, recovery: e.recovery,
+        }));
+        safeStorageSet(ERROR_LOG_KEY, JSON.stringify(slim));
+    } catch {}
+}
+
+/**
+ * Report an error into the central log + show a toast.
+ * @param {string} code        Key from ERROR_CODES.
+ * @param {object} [opts]
+ * @param {Error|object|string} [opts.detail]   Underlying error / context.
+ * @param {string}              [opts.message]  Override the default message.
+ * @param {Function}            [opts.retry]    Optional retry handler bound to this report.
+ * @param {boolean}             [opts.silent]   If true, suppress the toast.
+ * @returns {object} The recorded entry.
+ */
+function reportError(code, opts = {}) {
+    const def = ERROR_CODES[code] || { severity: "error", source: "unknown", message: "Unknown error", recovery: ["dismiss"] };
+    const detail = normalizeErrorDetail(opts.detail);
+    const message = opts.message
+        || (typeof def.message === "function" ? def.message(detail) : def.message);
+
+    const entry = {
+        id: nextErrorId(),
+        code,
+        severity: def.severity,
+        source: def.source,
+        message,
+        detail,
+        ts: Date.now(),
+        recovery: def.recovery || ["dismiss"],
+        retry: typeof opts.retry === "function" ? opts.retry : null,
+    };
+
+    state.errors.push(entry);
+    if (state.errors.length > ERROR_LOG_MAX) {
+        state.errors.splice(0, state.errors.length - ERROR_LOG_MAX);
+    }
+    try { console[entry.severity === "error" ? "error" : "warn"]("[zg]", code, message, detail); } catch {}
+    persistErrors();
+    refreshErrorBadge();
+    if (!dom.errorModal.classList.contains("hidden")) renderErrorTable();
+    if (!opts.silent) toast(message, { error: entry.severity === "error" });
+    return entry;
+}
+
+function normalizeErrorDetail(d) {
+    if (!d) return null;
+    if (d instanceof Error) {
+        return { name: d.name, message: d.message, stack: (d.stack || "").split("\n").slice(0, 6).join("\n") };
+    }
+    if (typeof d === "string") return { message: d };
+    if (typeof d === "object") {
+        try { return JSON.parse(JSON.stringify(d)); } catch { return { message: String(d) }; }
+    }
+    return { message: String(d) };
+}
+
+function dismissError(id) {
+    const i = state.errors.findIndex(e => e.id === id);
+    if (i >= 0) state.errors.splice(i, 1);
+    persistErrors();
+    refreshErrorBadge();
+    renderErrorTable();
+}
+
+function clearErrorLog() {
+    state.errors = [];
+    persistErrors();
+    refreshErrorBadge();
+    renderErrorTable();
+}
+
+function copyErrorEntry(entry) {
+    const text = JSON.stringify(entry, null, 2);
+    if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(text).then(
+            () => toast("Error details copied"),
+            () => toast("Couldn't copy to clipboard", { error: true })
+        );
+    } else {
+        toast("Clipboard not available", { error: true });
+    }
+}
+
+function copyErrorLog() {
+    const text = JSON.stringify(state.errors, null, 2);
+    if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(text).then(
+            () => toast("Error log copied"),
+            () => toast("Couldn't copy to clipboard", { error: true })
+        );
+    } else {
+        toast("Clipboard not available", { error: true });
+    }
+}
+
+function refreshErrorBadge() {
+    if (!dom.errorBadge) return;
+    const errCount = state.errors.filter(e => e.severity === "error").length;
+    if (errCount > 0) {
+        dom.errorBadge.textContent = errCount > 99 ? "99+" : String(errCount);
+        dom.errorBadge.classList.add("show");
+    } else {
+        dom.errorBadge.classList.remove("show");
+    }
+}
+
+function renderErrorTable() {
+    const tbody = dom.errorTableBody;
+    if (!tbody) return;
+    tbody.innerHTML = "";
+    if (state.errors.length === 0) {
+        const tr = document.createElement("tr");
+        tr.className = "empty";
+        tr.innerHTML = '<td colspan="6">No errors recorded yet.</td>';
+        tbody.appendChild(tr);
+        dom.errorSummary.textContent = "No errors recorded yet.";
+        return;
+    }
+    // newest first
+    const rows = [...state.errors].reverse();
+    for (const e of rows) {
+        const tr = document.createElement("tr");
+
+        const tdTime = document.createElement("td");
+        tdTime.className = "src";
+        tdTime.dataset.label = "Time";
+        tdTime.textContent = new Date(e.ts).toLocaleTimeString();
+        tdTime.title = new Date(e.ts).toLocaleString();
+        tr.appendChild(tdTime);
+
+        const tdSev = document.createElement("td");
+        tdSev.dataset.label = "Severity";
+        const sev = document.createElement("span");
+        sev.className = "sev " + e.severity;
+        sev.textContent = e.severity;
+        tdSev.appendChild(sev);
+        tr.appendChild(tdSev);
+
+        const tdCode = document.createElement("td");
+        tdCode.dataset.label = "Code";
+        const code = document.createElement("code");
+        code.className = "code";
+        code.textContent = e.code;
+        tdCode.appendChild(code);
+        tr.appendChild(tdCode);
+
+        const tdMsg = document.createElement("td");
+        tdMsg.className = "msg";
+        tdMsg.dataset.label = "Message";
+        tdMsg.textContent = e.message;
+        if (e.detail?.stack) tdMsg.title = e.detail.stack;
+        tr.appendChild(tdMsg);
+
+        const tdSrc = document.createElement("td");
+        tdSrc.className = "src";
+        tdSrc.dataset.label = "Source";
+        tdSrc.textContent = e.source;
+        tr.appendChild(tdSrc);
+
+        const tdRec = document.createElement("td");
+        tdRec.dataset.label = "Recovery";
+        const rec = document.createElement("div");
+        rec.className = "recovery";
+        const seen = new Set();
+        for (const key of (e.recovery || [])) {
+            if (seen.has(key)) continue;
+            seen.add(key);
+            const action = RECOVERY_ACTIONS[key];
+            if (!action) continue;
+            // hide retry button if there's no handler
+            if (key === "retry" && typeof e.retry !== "function") continue;
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.textContent = action.label;
+            btn.addEventListener("click", () => {
+                try { Promise.resolve(action.run(e)).catch(() => {}); }
+                catch (err) { toast("Recovery failed: " + (err.message || err), { error: true }); }
+            });
+            rec.appendChild(btn);
+        }
+        tdRec.appendChild(rec);
+        tr.appendChild(tdRec);
+
+        tbody.appendChild(tr);
+    }
+    const errs = state.errors.filter(e => e.severity === "error").length;
+    const warns = state.errors.filter(e => e.severity === "warn").length;
+    const infos = state.errors.filter(e => e.severity === "info").length;
+    dom.errorSummary.textContent =
+        `${state.errors.length} entr${state.errors.length === 1 ? "y" : "ies"} ` +
+        `(${errs} error${errs === 1 ? "" : "s"}, ${warns} warning${warns === 1 ? "" : "s"}` +
+        (infos ? `, ${infos} info` : "") + ").";
+}
+
+function showErrorModal() {
+    state.lastFocus = document.activeElement;
+    renderErrorTable();
+    dom.errorModal.classList.remove("hidden");
+    dom.errorClose.focus();
+}
+function hideErrorModal() {
+    if (dom.errorModal.classList.contains("hidden")) return;
+    dom.errorModal.classList.add("hidden");
+    if (state.lastFocus && document.contains(state.lastFocus)) {
+        try { state.lastFocus.focus(); } catch {}
+    }
+}
+function toggleErrorModal() {
+    if (dom.errorModal.classList.contains("hidden")) showErrorModal();
+    else hideErrorModal();
 }
 
 /* ---------------- pack diagnostics ---------------- */
@@ -1625,7 +2433,7 @@ function importSettings() {
             if (state.zipLoaded) buildTagBar();
             toast("Settings imported");
         } catch (e) {
-            toast("Could not import: " + (e.message || e), { error: true });
+            reportError("SETTINGS_IMPORT", { detail: e });
         }
     });
     input.click();
@@ -1636,8 +2444,372 @@ dom.diagModal.addEventListener("click", (e) => {
     if (e.target === dom.diagModal) dom.diagModal.classList.add("hidden");
 });
 
+/* ---------------- error modal wiring ---------------- */
+dom.errorLogBtn.addEventListener("click", showErrorModal);
+dom.errorClose.addEventListener("click", hideErrorModal);
+dom.errorClearBtn.addEventListener("click", () => {
+    if (state.errors.length === 0) return;
+    if (confirm("Clear all " + state.errors.length + " recorded error(s)?")) clearErrorLog();
+});
+dom.errorCopyBtn.addEventListener("click", copyErrorLog);
+dom.errorModal.addEventListener("click", (e) => {
+    if (e.target === dom.errorModal) hideErrorModal();
+});
+
+/* ---------------- per-game saves bridge ----------------
+ * Games can communicate with the launcher via window.parent.postMessage.
+ * Protocol (string id "zg-save"):
+ *   { id: "zg-save", op: "get",   key }                -> reply { value }
+ *   { id: "zg-save", op: "set",   key, value }         -> reply { ok }
+ *   { id: "zg-save", op: "del",   key }                -> reply { ok }
+ *   { id: "zg-save", op: "clear" }                     -> reply { ok }
+ * Saves are namespaced per game id/fileName under SAVE_PREFIX.
+ * Replies are sent via event.source.postMessage with the same reqId.
+ * ---------------------------------------------------- */
+function gameSaveNs(game) {
+    if (!game) return null;
+    const k = (game.id || game.fileName || "").toString();
+    return k ? SAVE_PREFIX + k : null;
+}
+function readSaveBag(game) {
+    const ns = gameSaveNs(game);
+    if (!ns) return {};
+    try { return JSON.parse(safeStorageGet(ns) || "{}") || {}; }
+    catch { return {}; }
+}
+function writeSaveBag(game, bag) {
+    const ns = gameSaveNs(game);
+    if (!ns) return;
+    safeStorageSet(ns, JSON.stringify(bag));
+}
+function hasSave(game) {
+    const ns = gameSaveNs(game);
+    if (!ns) return false;
+    const v = safeStorageGet(ns);
+    return !!v && v !== "{}";
+}
+function clearSave(game) {
+    const ns = gameSaveNs(game);
+    if (!ns) return;
+    try { localStorage.removeItem(ns); } catch {}
+}
+
+window.addEventListener("message", (ev) => {
+    const data = ev.data;
+    if (!data || typeof data !== "object" || data.id !== "zg-save") return;
+    if (!state.gameOpen || !state.currentGame) return;
+    if (ev.source !== dom.frame.contentWindow) return;
+    const reply = (payload) => {
+        try { ev.source.postMessage({ id: "zg-save-reply", reqId: data.reqId, ...payload }, "*"); }
+        catch {}
+    };
+    const bag = readSaveBag(state.currentGame);
+    try {
+        if (data.op === "get") {
+            reply({ value: Object.prototype.hasOwnProperty.call(bag, data.key) ? bag[data.key] : null });
+        } else if (data.op === "set") {
+            bag[data.key] = data.value;
+            writeSaveBag(state.currentGame, bag);
+            dom.clearSaveBtn.classList.remove("hidden");
+            reply({ ok: true });
+        } else if (data.op === "del") {
+            delete bag[data.key];
+            writeSaveBag(state.currentGame, bag);
+            reply({ ok: true });
+        } else if (data.op === "clear") {
+            clearSave(state.currentGame);
+            dom.clearSaveBtn.classList.add("hidden");
+            reply({ ok: true });
+        } else {
+            reply({ ok: false, error: "unknown op" });
+        }
+    } catch (e) {
+        reply({ ok: false, error: String(e && e.message || e) });
+    }
+});
+
+/* ---------------- iframe crash recovery ---------------- */
+function showCrash(message) {
+    if (!state.gameOpen) return;
+    state.crashed = true;
+    dom.crashNotice.textContent = "The game reported an error: " + message;
+    dom.crashNotice.classList.remove("hidden");
+    showOverlay();
+}
+function attachInnerCrashHandler() {
+    try {
+        const w = dom.frame.contentWindow;
+        if (!w) return;
+        w.addEventListener("error", (ev) => {
+            const msg = (ev && (ev.message || (ev.error && ev.error.message))) || "Unknown error";
+            showCrash(String(msg).slice(0, 200));
+        });
+        w.addEventListener("unhandledrejection", (ev) => {
+            const reason = ev && ev.reason;
+            const msg = (reason && (reason.message || String(reason))) || "Unhandled rejection";
+            showCrash(String(msg).slice(0, 200));
+        });
+    } catch { /* cross-origin; can't observe */ }
+}
+
+/* ---------------- command palette ---------------- */
+let _paletteIdx = 0;
+let _paletteItems = [];
+
+function paletteActions() {
+    const acts = [
+        { kind: "Action", label: "Toggle theme", run: toggleTheme },
+        { kind: "Action", label: "Show keyboard shortcuts", run: showHelp },
+        { kind: "Action", label: "Open error log", run: showErrorModal },
+        { kind: "Action", label: "Export settings", run: exportSettings },
+        { kind: "Action", label: "Import settings", run: importSettings },
+    ];
+    if (state.zipLoaded) {
+        acts.push({ kind: "Action", label: "Add another pack\u2026", run: openFilePicker });
+        acts.push({ kind: "Action", label: "Remove active pack", run: removeActivePack });
+    } else {
+        acts.push({ kind: "Action", label: "Load a pack\u2026", run: openFilePicker });
+    }
+    for (const p of state.packs || []) {
+        if (p.id !== state.activePackId) {
+            acts.push({
+                kind: "Pack",
+                label: "Switch to: " + p.name,
+                run: async () => { try { await setActivePackId(p.id); } catch {} location.reload(); }
+            });
+        }
+    }
+    return acts;
+}
+
+function showPalette() {
+    if (state.gameOpen) return;
+    state.lastFocus = document.activeElement;
+    dom.paletteInput.value = "";
+    renderPalette("");
+    dom.paletteModal.classList.remove("hidden");
+    dom.paletteInput.focus();
+}
+function hidePalette() {
+    if (dom.paletteModal.classList.contains("hidden")) return;
+    dom.paletteModal.classList.add("hidden");
+    if (state.lastFocus && document.contains(state.lastFocus)) {
+        try { state.lastFocus.focus(); } catch {}
+    }
+}
+function togglePalette() {
+    if (dom.paletteModal.classList.contains("hidden")) showPalette();
+    else hidePalette();
+}
+
+function renderPalette(query) {
+    const q = (query || "").trim().toLowerCase();
+    const items = [];
+
+    if (state.zipLoaded && state.tiles.length) {
+        for (const { game } of state.tiles) {
+            const name = game.displayName || game.fileName;
+            if (!q || name.toLowerCase().includes(q) ||
+                (game.description || "").toLowerCase().includes(q)) {
+                items.push({
+                    kind: "Game",
+                    label: name,
+                    run: () => { hidePalette(); openGame(game); },
+                });
+                if (items.length > 80) break;
+            }
+        }
+    }
+    for (const a of paletteActions()) {
+        if (!q || a.label.toLowerCase().includes(q)) items.push(a);
+    }
+
+    _paletteItems = items;
+    _paletteIdx = items.length ? 0 : -1;
+
+    dom.paletteList.innerHTML = "";
+    if (items.length === 0) {
+        const li = document.createElement("li");
+        li.className = "empty";
+        li.textContent = "No matches";
+        dom.paletteList.appendChild(li);
+        return;
+    }
+    items.forEach((it, i) => {
+        const li = document.createElement("li");
+        li.setAttribute("role", "option");
+        li.dataset.idx = String(i);
+        if (i === _paletteIdx) li.classList.add("active");
+        const label = document.createElement("span");
+        label.textContent = it.label;
+        const kind = document.createElement("span");
+        kind.className = "pal-kind";
+        kind.textContent = it.kind;
+        li.appendChild(label);
+        li.appendChild(kind);
+        li.addEventListener("mouseenter", () => setPaletteIdx(i));
+        li.addEventListener("click", () => runPaletteIdx(i));
+        dom.paletteList.appendChild(li);
+    });
+}
+function setPaletteIdx(i) {
+    if (i < 0 || i >= _paletteItems.length) return;
+    _paletteIdx = i;
+    for (const el of dom.paletteList.children) el.classList.remove("active");
+    const cur = dom.paletteList.children[i];
+    if (cur) {
+        cur.classList.add("active");
+        cur.scrollIntoView({ block: "nearest" });
+    }
+}
+function runPaletteIdx(i) {
+    const it = _paletteItems[i];
+    if (!it) return;
+    hidePalette();
+    try { it.run(); } catch (e) { reportError("PALETTE_ACTION", { detail: e }); }
+}
+
+dom.paletteInput.addEventListener("input", () => renderPalette(dom.paletteInput.value));
+dom.paletteInput.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowDown") { e.preventDefault(); setPaletteIdx(Math.min(_paletteIdx + 1, _paletteItems.length - 1)); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); setPaletteIdx(Math.max(_paletteIdx - 1, 0)); }
+    else if (e.key === "Enter") { e.preventDefault(); if (_paletteIdx >= 0) runPaletteIdx(_paletteIdx); }
+    else if (e.key === "Escape") { e.preventDefault(); hidePalette(); }
+});
+dom.paletteModal.addEventListener("click", (e) => {
+    if (e.target === dom.paletteModal) hidePalette();
+});
+
+/* ---------------- gamepad navigation ---------------- */
+function gamepadTick() {
+    state.gamepadRAF = requestAnimationFrame(gamepadTick);
+    if (state.gameOpen) return;
+    if (!dom.paletteModal.classList.contains("hidden")) return;
+    if (!dom.helpModal.classList.contains("hidden")) return;
+
+    const pads = (navigator.getGamepads ? navigator.getGamepads() : []) || [];
+    const pad = [...pads].find(p => p && p.connected);
+    if (!pad) return;
+
+    const now = performance.now();
+    const cooldown = 180; // ms between repeats
+
+    const pressed = (i) => !!(pad.buttons[i] && pad.buttons[i].pressed);
+    const justPressed = (i) => {
+        const cur = pressed(i);
+        const prev = !!state.gamepadPrev[i];
+        state.gamepadPrev[i] = cur;
+        return cur && !prev;
+    };
+
+    // Axes 0/1 = left stick. 12-15 = D-pad on standard mapping.
+    const ax = pad.axes[0] || 0, ay = pad.axes[1] || 0;
+    const dz = 0.4;
+    let dir = null;
+    if (pressed(14) || ax < -dz)      dir = "ArrowLeft";
+    else if (pressed(15) || ax > dz)  dir = "ArrowRight";
+    else if (pressed(12) || ay < -dz) dir = "ArrowUp";
+    else if (pressed(13) || ay > dz)  dir = "ArrowDown";
+
+    if (dir) {
+        if (now - state.gamepadHold > cooldown) {
+            state.gamepadHold = now;
+            navigateGrid({ key: dir, preventDefault: () => {} });
+        }
+    } else {
+        state.gamepadHold = 0;
+    }
+
+    // A (0) = open, B (1) = back/clear, Start (9) = palette
+    if (justPressed(0)) {
+        const el = document.activeElement;
+        if (el && el.classList && el.classList.contains("container")) el.click();
+    }
+    if (justPressed(1)) {
+        if (dom.search.value) { dom.search.value = ""; applySortAndFilter(); }
+    }
+    if (justPressed(9)) togglePalette();
+}
+function startGamepadLoop() {
+    if (state.gamepadRAF) return;
+    if (typeof navigator.getGamepads !== "function") return;
+    state.gamepadRAF = requestAnimationFrame(gamepadTick);
+}
+
+/* ---------------- focus trap for modals ---------------- */
+function trapFocus(modalEl) {
+    modalEl.addEventListener("keydown", (e) => {
+        if (e.key !== "Tab") return;
+        if (modalEl.classList.contains("hidden")) return;
+        const focusables = modalEl.querySelectorAll(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+        const list = [...focusables].filter(el => !el.disabled && el.offsetParent !== null);
+        if (list.length === 0) return;
+        const first = list[0], last = list[list.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+            e.preventDefault(); last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+            e.preventDefault(); first.focus();
+        }
+    });
+}
+trapFocus(dom.helpModal);
+trapFocus(dom.diagModal);
+trapFocus(dom.paletteModal);
+trapFocus(dom.overlay);
+trapFocus(dom.errorModal);
+
+/* ---------------- a11y polish ---------------- */
+// re-emit aria-pressed on tag chips after build
+const _origBuildTagBar = buildTagBar;
+buildTagBar = function () {
+    _origBuildTagBar();
+    for (const c of dom.tagBar.querySelectorAll(".chip:not(.clear)")) {
+        c.setAttribute("aria-pressed", c.classList.contains("active") ? "true" : "false");
+        const orig = c.onclick;
+        c.addEventListener("click", () => {
+            c.setAttribute("aria-pressed", c.classList.contains("active") ? "true" : "false");
+        });
+    }
+};
+
+// help modal show/hide with aria + focus restore
+const _origShowHelp = showHelp;
+const _origHideHelp = hideHelp;
+showHelp = function () {
+    state.lastFocus = document.activeElement;
+    _origShowHelp();
+};
+hideHelp = function () {
+    _origHideHelp();
+    if (state.lastFocus && document.contains(state.lastFocus)) {
+        try { state.lastFocus.focus(); } catch {}
+    }
+};
+// rebind listeners that referenced the originals
+dom.helpBtn.removeEventListener("click", _origShowHelp);
+dom.helpBtn.addEventListener("click", showHelp);
+dom.helpClose.removeEventListener("click", _origHideHelp);
+dom.helpClose.addEventListener("click", hideHelp);
+
 /* ---------------- init ---------------- */
+/* (helpers for saves, crash, palette, gamepad live above)  */
 dom.wiper.addEventListener("click", removeActivePack);
+
+/* ---------------- global error listeners ---------------- */
+window.addEventListener("error", (ev) => {
+    // ignore noisy ResizeObserver warnings + cross-origin script errors with no info
+    const msg = ev?.message || "";
+    if (/ResizeObserver loop/i.test(msg)) return;
+    if (msg === "Script error." && !ev.error) return;
+    reportError("UNHANDLED", { detail: ev.error || { message: msg, filename: ev.filename, lineno: ev.lineno, colno: ev.colno } });
+});
+window.addEventListener("unhandledrejection", (ev) => {
+    reportError("PROMISE_REJECTION", { detail: ev.reason });
+});
+
+// load any errors persisted from a previous session
+loadPersistedErrors();
 
 window.addEventListener("beforeunload", () => {
     revokeCoverUrls();
@@ -1648,18 +2820,20 @@ window.addEventListener("load", async () => {
     initTheme();
 
     const savedSort = safeStorageGet(SORT_KEY);
-    if (savedSort && ["default", "name", "recent"].includes(savedSort)) {
+    if (savedSort && ["default", "name", "recent", "favorites"].includes(savedSort)) {
         dom.sort.value = savedSort;
     }
 
     wireGlobalDrop();
+    window.addEventListener("gamepadconnected", startGamepadLoop);
+    startGamepadLoop();
 
     let packs = [];
-    try { packs = await listPacks(); } catch {}
+    try { packs = await listPacks(); } catch (e) { reportError("INDEXEDDB_OPEN", { detail: e, silent: true }); }
     state.packs = packs;
 
     let activeId = null;
-    try { activeId = await getActivePackId(); } catch {}
+    try { activeId = await getActivePackId(); } catch (e) { reportError("INDEXEDDB_OPEN", { detail: e, silent: true }); }
     if (activeId && !packs.some(p => p.id === activeId)) activeId = null;
     if (!activeId && packs.length > 0) {
         activeId = packs[0].id;
