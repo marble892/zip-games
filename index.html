@@ -386,11 +386,72 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         #diagList li.warn { color: var(--fg-muted); }
         #diagList li.err  { color: var(--danger); }
 
+        /* ---------- error log ---------- */
+        #errorModal .panel { width: min(880px, 96vw); max-height: 90vh; display: flex; flex-direction: column; }
+        #errorModal h3 { margin: 0 0 4px; }
+        #errorSummary { color: var(--fg-muted); font-size: 13px; margin: 0 0 10px; }
+        #errorTableWrap { overflow: auto; flex: 1; border: 1px solid var(--border); border-radius: 8px; }
+        #errorTable {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            min-width: 720px;
+        }
+        #errorTable thead th {
+            position: sticky; top: 0;
+            background: var(--input-bg);
+            text-align: left;
+            padding: 8px 10px;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            color: var(--fg-muted);
+            white-space: nowrap;
+        }
+        #errorTable tbody td {
+            padding: 8px 10px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+        }
+        #errorTable tbody tr:last-child td { border-bottom: none; }
+        #errorTable .sev {
+            display: inline-block;
+            padding: 1px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+        #errorTable .sev.error { background: rgba(220, 70, 70, .18);  color: var(--danger); }
+        #errorTable .sev.warn  { background: rgba(220, 170, 50, .18); color: #d8a93a; }
+        #errorTable .sev.info  { background: rgba(80, 140, 220, .18); color: #6aa6e6; }
+        #errorTable code.code  { font-size: 11px; color: var(--fg-muted); }
+        #errorTable .msg       { max-width: 320px; word-break: break-word; }
+        #errorTable .src       { color: var(--fg-muted); font-size: 11px; white-space: nowrap; }
+        #errorTable .recovery  { display: flex; flex-wrap: wrap; gap: 4px; }
+        #errorTable .recovery button { font-size: 11px; padding: 3px 8px; border-radius: 6px; }
+        #errorTable tr.empty td { text-align: center; color: var(--fg-muted); padding: 24px; }
+        #errorBadge {
+            display: none;
+            min-width: 16px; height: 16px;
+            padding: 0 5px;
+            border-radius: 9px;
+            background: var(--danger);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            line-height: 16px;
+            text-align: center;
+            margin-left: -6px;
+            transform: translateY(-8px);
+        }
+        #errorBadge.show { display: inline-block; }
+
        
         /* ---------- favorite star ---------- */
         .fav-btn {
             position: absolute;
-            top: 6px; right: 6px;
+            top: 6px; left: 6px;
             width: 28px; height: 28px;
             display: flex; align-items: center; justify-content: center;
             background: rgba(0,0,0,.45);
@@ -487,6 +548,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                 </select>
                 <button id="themeToggle" class="icon-btn" title="Toggle theme (T)" aria-label="Toggle theme">🌙</button>
                 <button id="helpBtn" class="icon-btn" title="Keyboard shortcuts (?)" aria-label="Help">?</button>
+                <button id="errorLogBtn" class="icon-btn" title="Error log (E)" aria-label="Error log">⚠</button><span id="errorBadge" aria-hidden="true">0</span>
                 <button id="wiper" class="danger hidden" title="Remove the active pack">Remove pack</button>
             </div>
         </div>
@@ -536,6 +598,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                 <dt><kbd>?</kbd></dt>                       <dd>Show this help</dd>
                 <dt><kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>K</kbd></dt> <dd>Command palette</dd>
                 <dt><kbd>S</kbd> on a tile</dt>             <dd>Toggle favorite</dd>
+                <dt><kbd>E</kbd></dt>                       <dd>Open error log</dd>
                 <dt>Gamepad</dt>                            <dd>D-pad / stick to move, A to open, B to back, Start for menu</dd>
             </dl>
             <h3 style="margin-top:18px;">Settings</h3>
@@ -562,6 +625,38 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         </div>
     </div>
 
+    <!-- error log modal -->
+    <div id="errorModal" class="modal hidden" role="dialog" aria-modal="true" aria-label="Error log">
+        <div class="panel">
+            <h3>Error log &amp; recovery</h3>
+            <p id="errorSummary">No errors recorded yet.</p>
+            <div id="errorTableWrap">
+                <table id="errorTable">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Severity</th>
+                            <th>Code</th>
+                            <th>Message</th>
+                            <th>Source</th>
+                            <th>Recovery</th>
+                        </tr>
+                    </thead>
+                    <tbody id="errorTableBody">
+                        <tr class="empty"><td colspan="6">No errors recorded yet.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="row" style="margin-top:10px; justify-content: space-between;">
+                <div class="row" style="gap:6px;">
+                    <button id="errorCopyBtn" title="Copy log as JSON to the clipboard">Copy log</button>
+                    <button id="errorClearBtn" class="danger" title="Clear all recorded errors">Clear log</button>
+                </div>
+                <button id="errorClose">Close</button>
+            </div>
+        </div>
+    </div>
+
     <!-- command palette -->
     <div id="paletteModal" class="modal hidden" role="dialog" aria-modal="true" aria-label="Command palette">
         <div class="panel">
@@ -583,7 +678,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 "use strict";
 
 /* =========================================================
- * Zipped Games — single-file HTML app
+ * Zipped Games — single-file HTML zip loader made by marble :3
  * Loads an offline zip pack and renders a small library UI.
  * ========================================================= */
 (() => {
@@ -601,6 +696,8 @@ const TAGS_KEY   = "zg.activeTags";
 const FAV_KEY    = "zg.favorites";
 const SAVE_PREFIX = "zg.save.";
 const RECENTS_MAX = 200;
+const ERROR_LOG_KEY = "zg.errorLog";
+const ERROR_LOG_MAX = 100;
 
 /* ---------------- DOM refs ---------------- */
 const $ = (id) => document.getElementById(id);
@@ -635,6 +732,14 @@ const dom = {
     diagList:   $("diagList"),
     diagContinue: $("diagContinue"),
     diagClose:  $("diagClose"),
+    errorModal: $("errorModal"),
+    errorSummary: $("errorSummary"),
+    errorTableBody: $("errorTableBody"),
+    errorClose: $("errorClose"),
+    errorClearBtn: $("errorClearBtn"),
+    errorCopyBtn: $("errorCopyBtn"),
+    errorLogBtn: $("errorLogBtn"),
+    errorBadge: $("errorBadge"),
     exportSettingsBtn: $("exportSettingsBtn"),
     importSettingsBtn: $("importSettingsBtn"),
     reloadBtn:  $("reloadBtn"),
@@ -666,9 +771,8 @@ const state = {
     gamepadRAF:  0,
     gamepadPrev: {},
     gamepadHold: 0,
-};
-
-/* ---------------- small utils ---------------- */
+    errors:      [],   // [{id, code, severity, message, source, detail, ts, recovery}]
+};/* ---------------- small utils ---------------- */
 function safeStorageGet(key) {
     try { return localStorage.getItem(key); } catch { return null; }
 }
@@ -924,7 +1028,7 @@ async function removeActivePack() {
         await setActivePackId(remaining[0]?.id || null);
         location.reload();
     } catch (e) {
-        toast("Failed to remove pack: " + (e.message || e), { error: true });
+        reportError("PACK_REMOVE", { detail: e, retry: removeActivePack });
     }
 }
 
@@ -935,29 +1039,29 @@ async function renderZip(arrayBuffer) {
         state.zip = await JSZip.loadAsync(arrayBuffer);
     } catch (e) {
         hideLoader();
-        toast("Couldn't read that file. Is it a valid .zip?", { error: true });
+        reportError("ZIP_PARSE", { detail: e });
         throw e;
     }
 
     const dataFile = state.zip.file("data.json");
     if (!dataFile) {
         hideLoader();
-        toast("Pack is missing data.json", { error: true });
+        reportError("DATA_MISSING");
         return;
     }
 
     let pack;
     try {
         pack = JSON.parse(await dataFile.async("string"));
-    } catch {
+    } catch (e) {
         hideLoader();
-        toast("data.json is malformed", { error: true });
+        reportError("DATA_MALFORMED", { detail: e });
         return;
     }
 
     if (!pack || !Array.isArray(pack.games)) {
         hideLoader();
-        toast("data.json has no games array", { error: true });
+        reportError("DATA_NO_GAMES");
         return;
     }
 
@@ -1188,11 +1292,11 @@ async function readGameHtml(game) {
     const path = (state.pack.fileBase || "") + game.fileName;
     const file = state.zip.file(path);
     if (!file) {
-        toast(`Missing game file: ${game.fileName}`, { error: true });
+        reportError("GAME_FILE_MISSING", { detail: { fileName: game.fileName } });
         return null;
     }
     try { return await file.async("string"); }
-    catch { toast("Failed to read game file", { error: true }); return null; }
+    catch (e) { reportError("GAME_FILE_READ", { detail: e }); return null; }
 }
 
 async function openGame(game) {
@@ -1247,7 +1351,7 @@ async function openGameNewTab(game) {
     if (dom.sort.value === "recent") applySortAndFilter();
 
     const win = window.open(url, "_blank", "noopener");
-    if (!win) toast("Pop-up blocked. Allow pop-ups to open in a new tab.", { error: true });
+    if (!win) reportError("POPUP_BLOCKED");
 }
 
 function closeGame() {
@@ -1343,7 +1447,7 @@ dom.fullscreenBtn.addEventListener("click", () => {
 function toggleFullscreen() {
     const el = dom.frame;
     if (!document.fullscreenElement) {
-        el.requestFullscreen?.().catch(() => toast("Fullscreen denied", { error: true }));
+        el.requestFullscreen?.().catch((e) => reportError("FULLSCREEN_DENIED", { detail: e }));
     } else {
         document.exitFullscreen?.().catch(() => {});
     }
@@ -1426,6 +1530,9 @@ document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && !dom.diagModal.classList.contains("hidden")) {
         dom.diagModal.classList.add("hidden"); return;
     }
+    if (e.key === "Escape" && !dom.errorModal.classList.contains("hidden")) {
+        hideErrorModal(); return;
+    }
 
     if (isTypingTarget(e.target)) {
         if (e.key === "Escape" && e.target === dom.search) {
@@ -1439,6 +1546,7 @@ document.addEventListener("keydown", (e) => {
     if (e.key === "/")               { e.preventDefault(); dom.search.focus(); return; }
     if (e.key === "?")               { e.preventDefault(); showHelp(); return; }
     if (e.key === "t" || e.key === "T") { toggleTheme(); return; }
+    if (e.key === "e" || e.key === "E") { e.preventDefault(); toggleErrorModal(); return; }
 
     if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
         navigateGrid(e);
@@ -1484,7 +1592,7 @@ async function loadZipFile(file) {
         file.type === "application/zip" ||
         file.type === "application/x-zip-compressed";
     if (!okExt && !okMime) {
-        toast("Please choose a .zip file", { error: true });
+        reportError("FILE_INVALID", { detail: { name: file?.name, type: file?.type } });
         return;
     }
     showLoader("Saving pack…");
@@ -1495,7 +1603,7 @@ async function loadZipFile(file) {
         location.reload();
     } catch (e) {
         hideLoader();
-        toast("Could not save pack: " + (e.message || e), { error: true });
+        reportError("PACK_SAVE", { detail: e });
     }
 }
 
@@ -1511,7 +1619,7 @@ async function openFilePicker() {
             const file = await handle.getFile();
             await loadZipFile(file);
         } catch (e) {
-            if (e && e.name !== "AbortError") toast("Could not open file", { error: true });
+            if (e && e.name !== "AbortError") reportError("FILE_OPEN", { detail: e });
         }
     } else {
         const input = document.createElement("input");
@@ -1677,6 +1785,288 @@ function updateClearChip() {
     if (c) c.style.display = state.activeTags.size > 0 ? "" : "none";
 }
 
+/* ---------------- error table & recovery ---------------- */
+/**
+ * Centralized error table. Each entry defines:
+ *   severity: "error" | "warn" | "info"
+ *   message:  default human-readable message (string OR function(detail) -> string)
+ *   source:   subsystem the error originated from (used in the table)
+ *   recovery: ordered list of recovery action keys (see RECOVERY_ACTIONS)
+ */
+const ERROR_CODES = {
+    ZIP_PARSE:         { severity: "error", source: "pack",     message: "Couldn't read that file. Is it a valid .zip?",            recovery: ["pickAnother", "removePack", "openHelp"] },
+    DATA_MISSING:      { severity: "error", source: "pack",     message: "Pack is missing data.json.",                                recovery: ["pickAnother", "removePack"] },
+    DATA_MALFORMED:    { severity: "error", source: "pack",     message: "data.json is malformed (invalid JSON).",                    recovery: ["pickAnother", "removePack", "openHelp"] },
+    DATA_NO_GAMES:     { severity: "error", source: "pack",     message: "data.json has no 'games' array.",                          recovery: ["pickAnother", "removePack"] },
+    PACK_SAVE:         { severity: "error", source: "storage",  message: (d) => "Could not save pack: " + (d?.message || "unknown"), recovery: ["retry", "clearStorage"] },
+    PACK_REMOVE:       { severity: "error", source: "storage",  message: (d) => "Failed to remove pack: " + (d?.message || "unknown"), recovery: ["retry", "reload"] },
+    GAME_FILE_MISSING: { severity: "error", source: "game",     message: (d) => "Missing game file: " + (d?.fileName || "?"),         recovery: ["openDiagnostics", "pickAnother"] },
+    GAME_FILE_READ:    { severity: "error", source: "game",     message: "Failed to read game file from the pack.",                  recovery: ["retry", "openDiagnostics"] },
+    POPUP_BLOCKED:     { severity: "warn",  source: "browser",  message: "Pop-up blocked. Allow pop-ups to open in a new tab.",       recovery: ["openHelp", "dismiss"] },
+    FULLSCREEN_DENIED: { severity: "warn",  source: "browser",  message: "Fullscreen request was denied by the browser.",             recovery: ["dismiss"] },
+    FILE_INVALID:      { severity: "warn",  source: "input",    message: "Please choose a .zip file.",                                recovery: ["pickAnother"] },
+    FILE_OPEN:         { severity: "warn",  source: "input",    message: "Could not open that file.",                                  recovery: ["pickAnother"] },
+    SETTINGS_IMPORT:   { severity: "error", source: "settings", message: (d) => "Could not import settings: " + (d?.message || "unknown"), recovery: ["retry"] },
+    PALETTE_ACTION:    { severity: "error", source: "ui",       message: (d) => "Action failed: " + (d?.message || "unknown"),         recovery: ["dismiss"] },
+    STORAGE_WRITE:     { severity: "warn",  source: "storage",  message: "Couldn't write to localStorage. Some preferences may not persist.", recovery: ["clearStorage", "dismiss"] },
+    INDEXEDDB_OPEN:    { severity: "error", source: "storage",  message: "Couldn't open the local database.",                          recovery: ["reload", "clearStorage"] },
+    UNHANDLED:         { severity: "error", source: "runtime",  message: (d) => "Unhandled error: " + (d?.message || "unknown"),       recovery: ["reload", "copyDetails"] },
+    PROMISE_REJECTION: { severity: "error", source: "runtime",  message: (d) => "Unhandled promise rejection: " + (d?.message || "unknown"), recovery: ["reload", "copyDetails"] },
+};
+
+/**
+ * Recovery actions registry. Each one knows how to mitigate / unblock the user.
+ * They receive the originating error entry and can return a Promise.
+ */
+const RECOVERY_ACTIONS = {
+    retry:           { label: "Retry",           run: (entry) => { if (typeof entry.retry === "function") return entry.retry(); toast("No retry handler available", { error: true }); } },
+    reload:          { label: "Reload page",     run: () => { location.reload(); } },
+    pickAnother:     { label: "Pick another\u2026", run: () => { try { hideErrorModal(); } catch {} openFilePicker(); } },
+    removePack:      { label: "Remove pack",     run: () => { try { hideErrorModal(); } catch {} removeActivePack(); } },
+    clearStorage:    { label: "Clear settings",  run: async () => {
+        if (!confirm("Clear ALL saved settings (theme, sort, recents, favorites, tags)? This cannot be undone.")) return;
+        for (const k of [THEME_KEY, SORT_KEY, RECENT_KEY, TAGS_KEY, FAV_KEY, ERROR_LOG_KEY]) {
+            try { localStorage.removeItem(k); } catch {}
+        }
+        toast("Settings cleared. Reloading\u2026");
+        setTimeout(() => location.reload(), 600);
+    } },
+    openDiagnostics: { label: "Run diagnostics", run: () => {
+        if (!state.pack) { toast("No pack loaded", { error: true }); return; }
+        try { hideErrorModal(); } catch {}
+        showDiagnostics(validatePack(state.pack));
+    } },
+    openHelp:        { label: "Help",            run: () => { try { hideErrorModal(); } catch {} showHelp(); } },
+    copyDetails:     { label: "Copy details",    run: (entry) => copyErrorEntry(entry) },
+    dismiss:         { label: "Dismiss",         run: (entry) => dismissError(entry.id) },
+};
+
+let _errorIdSeq = 0;
+function nextErrorId() { return "e" + Date.now().toString(36) + (_errorIdSeq++).toString(36); }
+
+function loadPersistedErrors() {
+    try {
+        const raw = safeStorageGet(ERROR_LOG_KEY);
+        if (!raw) return;
+        const arr = JSON.parse(raw);
+        if (Array.isArray(arr)) state.errors = arr.slice(-ERROR_LOG_MAX);
+    } catch {}
+    refreshErrorBadge();
+}
+
+function persistErrors() {
+    try {
+        // strip non-serializable retry handlers before persisting
+        const slim = state.errors.slice(-ERROR_LOG_MAX).map((e) => ({
+            id: e.id, code: e.code, severity: e.severity, message: e.message,
+            source: e.source, detail: e.detail, ts: e.ts, recovery: e.recovery,
+        }));
+        safeStorageSet(ERROR_LOG_KEY, JSON.stringify(slim));
+    } catch {}
+}
+
+/**
+ * Report an error into the central log + show a toast.
+ * @param {string} code        Key from ERROR_CODES.
+ * @param {object} [opts]
+ * @param {Error|object|string} [opts.detail]   Underlying error / context.
+ * @param {string}              [opts.message]  Override the default message.
+ * @param {Function}            [opts.retry]    Optional retry handler bound to this report.
+ * @param {boolean}             [opts.silent]   If true, suppress the toast.
+ * @returns {object} The recorded entry.
+ */
+function reportError(code, opts = {}) {
+    const def = ERROR_CODES[code] || { severity: "error", source: "unknown", message: "Unknown error", recovery: ["dismiss"] };
+    const detail = normalizeErrorDetail(opts.detail);
+    const message = opts.message
+        || (typeof def.message === "function" ? def.message(detail) : def.message);
+
+    const entry = {
+        id: nextErrorId(),
+        code,
+        severity: def.severity,
+        source: def.source,
+        message,
+        detail,
+        ts: Date.now(),
+        recovery: def.recovery || ["dismiss"],
+        retry: typeof opts.retry === "function" ? opts.retry : null,
+    };
+
+    state.errors.push(entry);
+    if (state.errors.length > ERROR_LOG_MAX) {
+        state.errors.splice(0, state.errors.length - ERROR_LOG_MAX);
+    }
+    try { console[entry.severity === "error" ? "error" : "warn"]("[zg]", code, message, detail); } catch {}
+    persistErrors();
+    refreshErrorBadge();
+    if (!dom.errorModal.classList.contains("hidden")) renderErrorTable();
+    if (!opts.silent) toast(message, { error: entry.severity === "error" });
+    return entry;
+}
+
+function normalizeErrorDetail(d) {
+    if (!d) return null;
+    if (d instanceof Error) {
+        return { name: d.name, message: d.message, stack: (d.stack || "").split("\n").slice(0, 6).join("\n") };
+    }
+    if (typeof d === "string") return { message: d };
+    if (typeof d === "object") {
+        try { return JSON.parse(JSON.stringify(d)); } catch { return { message: String(d) }; }
+    }
+    return { message: String(d) };
+}
+
+function dismissError(id) {
+    const i = state.errors.findIndex(e => e.id === id);
+    if (i >= 0) state.errors.splice(i, 1);
+    persistErrors();
+    refreshErrorBadge();
+    renderErrorTable();
+}
+
+function clearErrorLog() {
+    state.errors = [];
+    persistErrors();
+    refreshErrorBadge();
+    renderErrorTable();
+}
+
+function copyErrorEntry(entry) {
+    const text = JSON.stringify(entry, null, 2);
+    if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(text).then(
+            () => toast("Error details copied"),
+            () => toast("Couldn't copy to clipboard", { error: true })
+        );
+    } else {
+        toast("Clipboard not available", { error: true });
+    }
+}
+
+function copyErrorLog() {
+    const text = JSON.stringify(state.errors, null, 2);
+    if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(text).then(
+            () => toast("Error log copied"),
+            () => toast("Couldn't copy to clipboard", { error: true })
+        );
+    } else {
+        toast("Clipboard not available", { error: true });
+    }
+}
+
+function refreshErrorBadge() {
+    if (!dom.errorBadge) return;
+    const errCount = state.errors.filter(e => e.severity === "error").length;
+    if (errCount > 0) {
+        dom.errorBadge.textContent = errCount > 99 ? "99+" : String(errCount);
+        dom.errorBadge.classList.add("show");
+    } else {
+        dom.errorBadge.classList.remove("show");
+    }
+}
+
+function renderErrorTable() {
+    const tbody = dom.errorTableBody;
+    if (!tbody) return;
+    tbody.innerHTML = "";
+    if (state.errors.length === 0) {
+        const tr = document.createElement("tr");
+        tr.className = "empty";
+        tr.innerHTML = '<td colspan="6">No errors recorded yet.</td>';
+        tbody.appendChild(tr);
+        dom.errorSummary.textContent = "No errors recorded yet.";
+        return;
+    }
+    // newest first
+    const rows = [...state.errors].reverse();
+    for (const e of rows) {
+        const tr = document.createElement("tr");
+
+        const tdTime = document.createElement("td");
+        tdTime.className = "src";
+        tdTime.textContent = new Date(e.ts).toLocaleTimeString();
+        tdTime.title = new Date(e.ts).toLocaleString();
+        tr.appendChild(tdTime);
+
+        const tdSev = document.createElement("td");
+        const sev = document.createElement("span");
+        sev.className = "sev " + e.severity;
+        sev.textContent = e.severity;
+        tdSev.appendChild(sev);
+        tr.appendChild(tdSev);
+
+        const tdCode = document.createElement("td");
+        const code = document.createElement("code");
+        code.className = "code";
+        code.textContent = e.code;
+        tdCode.appendChild(code);
+        tr.appendChild(tdCode);
+
+        const tdMsg = document.createElement("td");
+        tdMsg.className = "msg";
+        tdMsg.textContent = e.message;
+        if (e.detail?.stack) tdMsg.title = e.detail.stack;
+        tr.appendChild(tdMsg);
+
+        const tdSrc = document.createElement("td");
+        tdSrc.className = "src";
+        tdSrc.textContent = e.source;
+        tr.appendChild(tdSrc);
+
+        const tdRec = document.createElement("td");
+        const rec = document.createElement("div");
+        rec.className = "recovery";
+        const seen = new Set();
+        for (const key of (e.recovery || [])) {
+            if (seen.has(key)) continue;
+            seen.add(key);
+            const action = RECOVERY_ACTIONS[key];
+            if (!action) continue;
+            // hide retry button if there's no handler
+            if (key === "retry" && typeof e.retry !== "function") continue;
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.textContent = action.label;
+            btn.addEventListener("click", () => {
+                try { Promise.resolve(action.run(e)).catch(() => {}); }
+                catch (err) { toast("Recovery failed: " + (err.message || err), { error: true }); }
+            });
+            rec.appendChild(btn);
+        }
+        tdRec.appendChild(rec);
+        tr.appendChild(tdRec);
+
+        tbody.appendChild(tr);
+    }
+    const errs = state.errors.filter(e => e.severity === "error").length;
+    const warns = state.errors.filter(e => e.severity === "warn").length;
+    const infos = state.errors.filter(e => e.severity === "info").length;
+    dom.errorSummary.textContent =
+        `${state.errors.length} entr${state.errors.length === 1 ? "y" : "ies"} ` +
+        `(${errs} error${errs === 1 ? "" : "s"}, ${warns} warning${warns === 1 ? "" : "s"}` +
+        (infos ? `, ${infos} info` : "") + ").";
+}
+
+function showErrorModal() {
+    state.lastFocus = document.activeElement;
+    renderErrorTable();
+    dom.errorModal.classList.remove("hidden");
+    dom.errorClose.focus();
+}
+function hideErrorModal() {
+    if (dom.errorModal.classList.contains("hidden")) return;
+    dom.errorModal.classList.add("hidden");
+    if (state.lastFocus && document.contains(state.lastFocus)) {
+        try { state.lastFocus.focus(); } catch {}
+    }
+}
+function toggleErrorModal() {
+    if (dom.errorModal.classList.contains("hidden")) showErrorModal();
+    else hideErrorModal();
+}
+
 /* ---------------- pack diagnostics ---------------- */
 function validatePack(pack) {
     const errors = [];
@@ -1812,7 +2202,7 @@ function importSettings() {
             if (state.zipLoaded) buildTagBar();
             toast("Settings imported");
         } catch (e) {
-            toast("Could not import: " + (e.message || e), { error: true });
+            reportError("SETTINGS_IMPORT", { detail: e });
         }
     });
     input.click();
@@ -1821,6 +2211,18 @@ dom.exportSettingsBtn.addEventListener("click", exportSettings);
 dom.importSettingsBtn.addEventListener("click", importSettings);
 dom.diagModal.addEventListener("click", (e) => {
     if (e.target === dom.diagModal) dom.diagModal.classList.add("hidden");
+});
+
+/* ---------------- error modal wiring ---------------- */
+dom.errorLogBtn.addEventListener("click", showErrorModal);
+dom.errorClose.addEventListener("click", hideErrorModal);
+dom.errorClearBtn.addEventListener("click", () => {
+    if (state.errors.length === 0) return;
+    if (confirm("Clear all " + state.errors.length + " recorded error(s)?")) clearErrorLog();
+});
+dom.errorCopyBtn.addEventListener("click", copyErrorLog);
+dom.errorModal.addEventListener("click", (e) => {
+    if (e.target === dom.errorModal) hideErrorModal();
 });
 
 /* ---------------- per-game saves bridge ----------------
@@ -1927,6 +2329,7 @@ function paletteActions() {
     const acts = [
         { kind: "Action", label: "Toggle theme", run: toggleTheme },
         { kind: "Action", label: "Show keyboard shortcuts", run: showHelp },
+        { kind: "Action", label: "Open error log", run: showErrorModal },
         { kind: "Action", label: "Export settings", run: exportSettings },
         { kind: "Action", label: "Import settings", run: importSettings },
     ];
@@ -2032,7 +2435,7 @@ function runPaletteIdx(i) {
     const it = _paletteItems[i];
     if (!it) return;
     hidePalette();
-    try { it.run(); } catch (e) { toast("Action failed: " + (e.message || e), { error: true }); }
+    try { it.run(); } catch (e) { reportError("PALETTE_ACTION", { detail: e }); }
 }
 
 dom.paletteInput.addEventListener("input", () => renderPalette(dom.paletteInput.value));
@@ -2123,6 +2526,7 @@ trapFocus(dom.helpModal);
 trapFocus(dom.diagModal);
 trapFocus(dom.paletteModal);
 trapFocus(dom.overlay);
+trapFocus(dom.errorModal);
 
 /* ---------------- a11y polish ---------------- */
 // re-emit aria-pressed on tag chips after build
@@ -2161,6 +2565,21 @@ dom.helpClose.addEventListener("click", hideHelp);
 /* (helpers for saves, crash, palette, gamepad live above)  */
 dom.wiper.addEventListener("click", removeActivePack);
 
+/* ---------------- global error listeners ---------------- */
+window.addEventListener("error", (ev) => {
+    // ignore noisy ResizeObserver warnings + cross-origin script errors with no info
+    const msg = ev?.message || "";
+    if (/ResizeObserver loop/i.test(msg)) return;
+    if (msg === "Script error." && !ev.error) return;
+    reportError("UNHANDLED", { detail: ev.error || { message: msg, filename: ev.filename, lineno: ev.lineno, colno: ev.colno } });
+});
+window.addEventListener("unhandledrejection", (ev) => {
+    reportError("PROMISE_REJECTION", { detail: ev.reason });
+});
+
+// load any errors persisted from a previous session
+loadPersistedErrors();
+
 window.addEventListener("beforeunload", () => {
     revokeCoverUrls();
     revokeBlobUrls();
@@ -2179,11 +2598,11 @@ window.addEventListener("load", async () => {
     startGamepadLoop();
 
     let packs = [];
-    try { packs = await listPacks(); } catch {}
+    try { packs = await listPacks(); } catch (e) { reportError("INDEXEDDB_OPEN", { detail: e, silent: true }); }
     state.packs = packs;
 
     let activeId = null;
-    try { activeId = await getActivePackId(); } catch {}
+    try { activeId = await getActivePackId(); } catch (e) { reportError("INDEXEDDB_OPEN", { detail: e, silent: true }); }
     if (activeId && !packs.some(p => p.id === activeId)) activeId = null;
     if (!activeId && packs.length > 0) {
         activeId = packs[0].id;
