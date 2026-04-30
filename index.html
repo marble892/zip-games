@@ -737,7 +737,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         <div id="games"></div>
         <div id="emptyState" class="hidden"></div>
         <div id="zipLoader" class="hidden">
-            <h2>+ Drag and drop a Games.zip</h2>
+            <h2>+ Drag and drop a game asset pack (.zip)</h2>
             <p>or click to choose a file</p>
         </div>
     </div>
@@ -773,7 +773,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                 <dt><kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd></dt> <dd>Move between games</dd>
                 <dt><kbd>Enter</kbd></dt>                   <dd>Open the focused game</dd>
                 <dt><kbd>Ctrl</kbd>+<kbd>Click</kbd></dt>   <dd>Open in a new tab</dd>
-                <dt><kbd>Esc</kbd> / <kbd>Alt</kbd>+<kbd>M</kbd></dt> <dd>Toggle in-game menu</dd>
+                <dt><kbd>Alt</kbd>+<kbd>M</kbd></dt>        <dd>Toggle in-game menu</dd>
+                <dt><kbd>Alt</kbd>+<kbd>R</kbd></dt>        <dd>Reload game</dd>
                 <dt><kbd>F</kbd></dt>                       <dd>Fullscreen (in-game)</dd>
                 <dt><kbd>T</kbd></dt>                       <dd>Toggle theme</dd>
                 <dt><kbd>?</kbd></dt>                       <dd>Show this help</dd>
@@ -858,10 +859,13 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 <script>
 "use strict";
 
-/* =========================================================
- * Zipped Games — single-file HTML zip loader made by marble :3
- * Loads an offline zip pack and renders a small library UI.
- * ========================================================= */
+/* ============================================================== *
+ * Zipped Games — single-file HTML zip loader made by:            *
+ *      marble (main designer lead / idea man)                    *
+ *      no-usernamefr (main programming lead / absolute genuis)   *
+ *                                                                *
+ * Loads an offline zip pack and renders a small library UI.      *
+ * ============================================================== */
 (() => {
 
 /* ---------------- config ---------------- */
@@ -883,52 +887,52 @@ const ERROR_LOG_MAX = 100;
 /* ---------------- DOM refs ---------------- */
 const $ = (id) => document.getElementById(id);
 const dom = {
-    library:    $("everythingContainer"),
-    games:      $("games"),
-    emptyState: $("emptyState"),
-    packMeta:   $("packMeta"),
-    brand:      $("brand"),
-    search:     $("search"),
-    sort:       $("sort"),
-    frame:      $("frame"),
-    overlay:    $("overlay"),
-    overlayTitle: $("overlayTitle"),
-    resumeBtn:  $("resumeBtn"),
-    fullscreenBtn: $("fullscreenBtn"),
-    exitBtn:    $("exitBtn"),
-    helpBtn:    $("helpBtn"),
-    helpModal:  $("helpModal"),
-    helpClose:  $("helpClose"),
-    loader:     $("loader"),
-    loaderText: $("loaderText"),
-    toast:      $("toast"),
-    zipLoader:  $("zipLoader"),
-    wiper:      $("wiper"),
-    themeToggle:$("themeToggle"),
-    tagBar:     $("tagBar"),
-    packSwitcher: $("packSwitcher"),
-    addPackBtn: $("addPackBtn"),
-    diagModal:  $("diagModal"),
-    diagSummary:$("diagSummary"),
-    diagList:   $("diagList"),
-    diagContinue: $("diagContinue"),
-    diagClose:  $("diagClose"),
-    errorModal: $("errorModal"),
-    errorSummary: $("errorSummary"),
-    errorTableBody: $("errorTableBody"),
-    errorClose: $("errorClose"),
-    errorClearBtn: $("errorClearBtn"),
-    errorCopyBtn: $("errorCopyBtn"),
-    errorLogBtn: $("errorLogBtn"),
-    errorBadge: $("errorBadge"),
-    exportSettingsBtn: $("exportSettingsBtn"),
-    importSettingsBtn: $("importSettingsBtn"),
-    reloadBtn:  $("reloadBtn"),
-    clearSaveBtn: $("clearSaveBtn"),
-    crashNotice: $("crashNotice"),
-    paletteModal: $("paletteModal"),
-    paletteInput: $("paletteInput"),
-    paletteList: $("paletteList"),
+    library:             $("everythingContainer"),
+    games:               $("games"),
+    emptyState:          $("emptyState"),
+    packMeta:            $("packMeta"),
+    brand:               $("brand"),
+    search:              $("search"),
+    sort:                $("sort"),
+    frame:               $("frame"),
+    overlay:             $("overlay"),
+    overlayTitle:        $("overlayTitle"),
+    resumeBtn:           $("resumeBtn"),
+    fullscreenBtn:       $("fullscreenBtn"),
+    exitBtn:             $("exitBtn"),
+    helpBtn:             $("helpBtn"),
+    helpModal:           $("helpModal"),
+    helpClose:           $("helpClose"),
+    loader:              $("loader"),
+    loaderText:          $("loaderText"),
+    toast:               $("toast"),
+    zipLoader:           $("zipLoader"),
+    wiper:               $("wiper"),
+    themeToggle:         $("themeToggle"),
+    tagBar:              $("tagBar"),
+    packSwitcher:        $("packSwitcher"),
+    addPackBtn:          $("addPackBtn"),
+    diagModal:           $("diagModal"),
+    diagSummary:         $("diagSummary"),
+    diagList:            $("diagList"),
+    diagContinue:        $("diagContinue"),
+    diagClose:           $("diagClose"),
+    errorModal:          $("errorModal"),
+    errorSummary:        $("errorSummary"),
+    errorTableBody:      $("errorTableBody"),
+    errorClose:          $("errorClose"),
+    errorClearBtn:       $("errorClearBtn"),
+    errorCopyBtn:        $("errorCopyBtn"),
+    errorLogBtn:         $("errorLogBtn"),
+    errorBadge:          $("errorBadge"),
+    exportSettingsBtn:   $("exportSettingsBtn"),
+    importSettingsBtn:   $("importSettingsBtn"),
+    reloadBtn:           $("reloadBtn"),
+    clearSaveBtn:        $("clearSaveBtn"),
+    crashNotice:         $("crashNotice"),
+    paletteModal:        $("paletteModal"),
+    paletteInput:        $("paletteInput"),
+    paletteList:         $("paletteList")
 };
 
 /* ---------------- app state ---------------- */
@@ -1512,6 +1516,7 @@ async function openGame(game) {
             try { dom.frame.contentWindow?.focus(); } catch {}
             hideLoader();
         };
+
         dom.frame.addEventListener("load", onLoad);
         dom.frame.srcdoc = html;
     }, 180);
@@ -1566,6 +1571,16 @@ function closeGame() {
     }
 }
 
+function reloadGame() {
+    console.log("reloaded game")
+    if (!state.currentGame) return;
+    const g = state.currentGame;
+    hideOverlay();
+    // re-open same game by closing then re-opening
+    closeGame();
+    setTimeout(() => openGame(g), 220);
+}
+
 function refreshRecentsBadges() {
     for (const { el, game } of state.tiles) {
         const ts = state.recents[recentsKey(game)];
@@ -1603,12 +1618,7 @@ function toggleOverlay() {
 dom.resumeBtn.addEventListener("click", hideOverlay);
 dom.exitBtn.addEventListener("click", closeGame);
 dom.reloadBtn.addEventListener("click", () => {
-    if (!state.currentGame) return;
-    const g = state.currentGame;
-    hideOverlay();
-    // re-open same game by closing then re-opening
-    closeGame();
-    setTimeout(() => openGame(g), 220);
+    reloadGame();
 });
 dom.clearSaveBtn.addEventListener("click", () => {
     if (!state.currentGame) return;
@@ -1650,8 +1660,18 @@ dom.sort.addEventListener("change", () => {
 
 /* ---------------- keyboard ---------------- */
 function isMenuKey(e) {
-    return (e.altKey && (e.key === "m" || e.key === "M")) || e.key === "Escape";
+    return (e.altKey && (e.key === "m" || e.key === "M"));
 }
+
+function isGameReloadKey(e) {
+    return (e.altKey && (e.key === "r" || e.key === "R"));
+}
+
+function isFullscreenKey(e, ingame) {
+    return (
+        (e.key === "f" || e.key === "F") && !e.ctrlKey && !e.metaKey && !e.altKey && (!isTypingTarget(e.target) && ingame));
+}
+
 function isTypingTarget(t) {
     if (!t) return false;
     const tag = t.tagName;
@@ -1689,9 +1709,8 @@ function navigateGrid(e) {
 document.addEventListener("keydown", (e) => {
     if (state.gameOpen) {
         if (isMenuKey(e)) { e.preventDefault(); toggleOverlay(); return; }
-        if ((e.key === "f" || e.key === "F") && !e.ctrlKey && !e.metaKey && !e.altKey) {
-            e.preventDefault(); toggleFullscreen(); return;
-        }
+        if (isGameReloadKey(e)) { e.preventDefault(); reloadGame(); return; }
+        if (isFullscreenKey(e, false)) { e.preventDefault(); toggleFullscreen(); return; }
         return;
     }
 
@@ -1739,12 +1758,9 @@ function attachInnerKeyHandler() {
         const doc = dom.frame.contentDocument;
         if (!doc) return;
         doc.addEventListener("keydown", (e) => {
-            if (isMenuKey(e)) { e.preventDefault(); toggleOverlay(); }
-            else if ((e.key === "f" || e.key === "F") &&
-                     !e.ctrlKey && !e.metaKey && !e.altKey &&
-                     !isTypingTarget(e.target)) {
-                e.preventDefault(); toggleFullscreen();
-            }
+            if (isMenuKey(e)) { e.preventDefault(); toggleOverlay(); return; }
+            if (isGameReloadKey(e)) { e.preventDefault(); reloadGame(); return; }
+            if (isFullscreenKey(e, false)) { e.preventDefault(); toggleFullscreen(); return; }
         }, true);
 
         // touch: swipe down from the top edge opens the in-game menu
@@ -1891,12 +1907,22 @@ function wireGlobalDrop() {
         setActive(false);
         stopWatchdog();
         if (state.gameOpen) return;
+        if (e.dataTransfer.files.length === 1) {
         const file = e.dataTransfer.files?.[0];
         if (!file) return;
         if (state.zipLoaded) {
             if (!confirm(`Add "${file.name}" as a new pack and switch to it?`)) return;
         }
         await loadZipFile(file);
+        } else if (e.dataTransfer.files.length > 1) {
+            for (file of e.dataTransfer.files) {
+                if (!file) return;
+                if (state.zipLoaded) {
+                    if (!confirm(`Add "${file.name}" as a new pack and switch to it?`)) return;
+                }
+                await loadZipFile(file);
+            }
+        }
     });
     // belt-and-suspenders: always clear when the window/tab loses focus
     window.addEventListener("blur",          () => { setActive(false); stopWatchdog(); });
@@ -2706,7 +2732,7 @@ function gamepadTick() {
     const ax = pad.axes[0] || 0, ay = pad.axes[1] || 0;
     const dz = 0.4;
     let dir = null;
-    if (pressed(14) || ax < -dz)      dir = "ArrowLeft";
+    if      (pressed(14) || ax < -dz) dir = "ArrowLeft";
     else if (pressed(15) || ax > dz)  dir = "ArrowRight";
     else if (pressed(12) || ay < -dz) dir = "ArrowUp";
     else if (pressed(13) || ay > dz)  dir = "ArrowDown";
