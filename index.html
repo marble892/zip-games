@@ -87,7 +87,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             flex-shrink: 0;
             padding: 8px 14px;
             display: grid;
-            grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr);
+            grid-template-columns: minmax(0, auto) minmax(0, 1fr) minmax(0, auto);
             gap: 10px;
             align-items: center;
             background: var(--bg-elev);
@@ -98,7 +98,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         }
         .nav-left   { display: flex; justify-content: flex-start; align-items: center; gap: 8px; min-width: 0; }
         .nav-center { display: flex; justify-content: center; min-width: 0; }
-        .nav-right  { display: flex; justify-content: flex-end; align-items: center; gap: 6px; flex-wrap: nowrap; min-width: 0; }
+        .nav-right  { display: flex; justify-content: flex-end; align-items: center; gap: 6px; flex-wrap: nowrap; }
 
         /* visually-grouped icon buttons that always stay together */
         .icon-cluster {
@@ -219,7 +219,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             overflow: hidden;
             white-space: nowrap;
         }
-        .nav-right select { max-width: 170px; flex: 0 1 auto; min-width: 0; }
+        .nav-right select { max-width: 200px; flex: 0 0 auto; }
         #wiper .wiper-icon { display: none; font-weight: 700; line-height: 1; }
         #wiper { white-space: nowrap; flex: 0 0 auto; }
 
