@@ -964,7 +964,6 @@ function safeStorageGet(key) {
 function safeStorageSet(key, value) {
     try { localStorage.setItem(key, value); } catch {}
 }
-
 function loadRecents() {
     try { return JSON.parse(safeStorageGet(RECENT_KEY) || "{}") || {}; }
     catch { return {}; }
@@ -978,7 +977,6 @@ function loadActiveTags() {
 function saveActiveTags() {
     safeStorageSet(TAGS_KEY, JSON.stringify([...state.activeTags]));
 }
-
 function loadFavorites() {
     try {
         const arr = JSON.parse(safeStorageGet(FAV_KEY) || "[]");
@@ -1668,8 +1666,7 @@ function isGameReloadKey(e) {
 }
 
 function isFullscreenKey(e, ingame) {
-    return (
-        (e.key === "f" || e.key === "F") && !e.ctrlKey && !e.metaKey && !e.altKey && (!isTypingTarget(e.target) && ingame));
+    return ((e.key === "f" || e.key === "F") && !e.ctrlKey && !e.metaKey && !e.altKey && (!isTypingTarget(e.target) && ingame));
 }
 
 function isTypingTarget(t) {
