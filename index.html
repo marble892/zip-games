@@ -937,26 +937,26 @@ const dom = {
 
 /* ---------------- app state ---------------- */
 const state = {
-    zip:         null,
-    pack:        null,
-    zipLoaded:   false,
-    gameOpen:    false,
-    currentGame: null,
-    coverUrls:   [],   // tracked for revocation
-    blobUrls:    [],   // tracked for revocation (new-tab pages)
-    tiles:       [],   // {el, game}
-    recents:     loadRecents(),
-    activeTags:  loadActiveTags(),
-    favorites:   loadFavorites(),
+    zip:          null,
+    pack:         null,
+    zipLoaded:    false,
+    gameOpen:     false,
+    currentGame:  null,
+    coverUrls:    [],   // tracked for revocation
+    blobUrls:     [],   // tracked for revocation (new-tab pages)
+    tiles:        [],   // {el, game}
+    recents:      loadRecents(),
+    activeTags:   loadActiveTags(),
+    favorites:    loadFavorites(),
     activePackId: null,
-    packs:       [],
-    scrollY:     0,
-    lastFocus:   null,
-    crashed:     false,
-    gamepadRAF:  0,
-    gamepadPrev: {},
-    gamepadHold: 0,
-    errors:      [],   // [{id, code, severity, message, source, detail, ts, recovery}]
+    packs:        [],
+    scrollY:      0,
+    lastFocus:    null,
+    crashed:      false,
+    gamepadRAF:   0,
+    gamepadPrev:  {},
+    gamepadHold:  0,
+    errors:       [],   // [{id, code, severity, message, source, detail, ts, recovery}]
 };/* ---------------- small utils ---------------- */
 function safeStorageGet(key) {
     try { return localStorage.getItem(key); } catch { return null; }
